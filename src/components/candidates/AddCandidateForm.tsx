@@ -63,6 +63,23 @@ export function AddCandidateForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log("Submitting candidate data:", {
+        name,
+        email,
+        phone,
+        position,
+        birthdate,
+        address,
+        nationality,
+        location,
+        company,
+        department,
+        industry,
+        experience,
+        education,
+        university,
+      });
+
       const { data, error } = await supabase
         .from("candidates")
         .insert([
@@ -83,9 +100,15 @@ export function AddCandidateForm() {
             university,
             status: "new",
           },
-        ]);
+        ])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+
+      console.log("Insert response:", data);
 
       toast({
         title: "Kandidat hinzugefügt",
@@ -93,6 +116,7 @@ export function AddCandidateForm() {
       });
       navigate("/candidates");
     } catch (error) {
+      console.error("Form submission error:", error);
       toast({
         title: "Fehler",
         description: "Beim Hinzufügen des Kandidaten ist ein Fehler aufgetreten.",
