@@ -22,7 +22,7 @@ export function CandidateApplications({ candidateId }: CandidateApplicationsProp
           {applications?.map((application) => (
             <div key={application.id} className="flex items-center justify-between">
               <div>
-                <div className="font-medium">{application.job_title}</div>
+                <div className="font-medium">{application.jobs?.title}</div>
                 <div className="text-sm text-muted-foreground">
                   Beworben am: {new Date(application.date_applied).toLocaleDateString()}
                 </div>

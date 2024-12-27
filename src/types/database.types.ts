@@ -80,4 +80,7 @@ export interface Application {
   job_id: number
   status: 'applied' | 'reviewing' | 'interviewed' | 'offered' | 'rejected'
   date_applied: string
+  jobs?: {
+    title: string
+  }
 }
