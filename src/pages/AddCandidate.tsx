@@ -15,10 +15,11 @@ export default function AddCandidate() {
         </div>
         <Button 
           type="submit" 
-          form="candidate-form" 
-          className="flex items-center gap-2 bg-primary text-white hover:bg-primary/90"
+          form="candidate-form"
+          size="lg"
+          className="flex items-center gap-2"
         >
-          <UserPlus className="h-4 w-4" />
+          <UserPlus className="h-5 w-5" />
           Kandidat erstellen
         </Button>
       </div>
