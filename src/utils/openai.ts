@@ -2,6 +2,8 @@ import { supabase } from "@/lib/supabase";
 
 export async function analyzeResumeWithGPT(text: string) {
   try {
+    console.log('Fetching OpenAI API key from Supabase secrets...');
+    
     // Fetch the API key from Supabase secrets
     const { data: secretData, error: secretError } = await supabase
       .from('secrets')
