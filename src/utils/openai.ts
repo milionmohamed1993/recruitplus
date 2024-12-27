@@ -17,13 +17,16 @@ export async function analyzeResumeWithGPT(text: string) {
     }
 
     if (!secretData?.value) {
-      console.error('No valid API key found');
-      throw new Error('OpenAI API key not found or invalid');
+      console.error('No API key found in secrets');
+      throw new Error('OpenAI API key not found in secrets');
     }
 
     const apiKey = secretData.value.trim();
+    
+    // Validate API key format
     if (!apiKey.startsWith('sk-')) {
-      throw new Error('Invalid OpenAI API key format');
+      console.error('Invalid API key format');
+      throw new Error('Invalid OpenAI API key format. The key should start with "sk-"');
     }
 
     console.log('Making request to OpenAI API...');
@@ -82,7 +85,9 @@ export async function analyzeResumeWithGPT(text: string) {
 
     const data = await response.json();
     console.log('OpenAI API response received successfully');
-    return data.choices[0].message.content;
+    
+    // Clone the response before returning it
+    return JSON.stringify(JSON.parse(data.choices[0].message.content));
   } catch (error) {
     console.error('Error in analyzeResumeWithGPT:', error);
     throw error;
