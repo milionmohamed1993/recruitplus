@@ -84,6 +84,42 @@ export function AddCandidateForm() {
 
       if (error) throw error;
 
+      // After successfully creating the candidate, upload any attachments
+      if (data && data[0]) {
+        const candidateId = data[0].id;
+        const files = document.querySelectorAll<HTMLInputElement>('#resume-upload');
+        const fileList = files[0]?.files;
+        
+        if (fileList && fileList.length > 0) {
+          for (let i = 0; i < fileList.length; i++) {
+            const file = fileList[i];
+            const fileName = `${Date.now()}_${file.name}`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from('attachments')
+              .upload(fileName, file);
+
+            if (uploadError) {
+              console.error('Error uploading file:', uploadError);
+              continue;
+            }
+
+            const { error: attachmentError } = await supabase
+              .from('candidate_attachments')
+              .insert({
+                candidate_id: candidateId,
+                file_name: file.name,
+                file_path: fileName,
+                file_type: file.type,
+              });
+
+            if (attachmentError) {
+              console.error('Error saving attachment record:', attachmentError);
+            }
+          }
+        }
+      }
+
       toast({
         title: "Kandidat hinzugefügt",
         description: "Der Kandidat wurde erfolgreich hinzugefügt.",
