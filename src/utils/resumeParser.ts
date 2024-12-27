@@ -20,20 +20,21 @@ export async function parseResume(file: File, text: string, apiKey: string) {
       - Vollständiger Name
       - E-Mail
       - Telefonnummer
-      - Standort/Wohnort
+      - Geburtsdatum (falls verfügbar)
+      - Adresse (falls verfügbar)
       - Nationalität (falls verfügbar)
+      - Standort/Wohnort
     
     - Berufliche Informationen:
       - Aktuelle/Letzte Position
       - Firma
-      - Berufserfahrung in Jahren
-      - Branche
       - Abteilung
+      - Branche
+      - Berufserfahrung in Jahren
     
     - Ausbildung:
-      - Abschluss
+      - Höchster Abschluss
       - Universität/Institution
-      - Abschlussjahr
     
     Gib die Informationen in diesem exakten JSON-Format zurück:
     {
@@ -41,20 +42,21 @@ export async function parseResume(file: File, text: string, apiKey: string) {
         "name": "",
         "email": "",
         "phone": "",
-        "location": "",
-        "nationality": ""
+        "birthdate": "",
+        "address": "",
+        "nationality": "",
+        "location": ""
       },
       "professionalInfo": {
         "position": "",
         "company": "",
-        "experience": "",
+        "department": "",
         "industry": "",
-        "department": ""
+        "experience": ""
       },
       "education": {
         "degree": "",
-        "university": "",
-        "graduationYear": ""
+        "university": ""
       }
     }`;
 
@@ -67,7 +69,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4-turbo-preview",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
