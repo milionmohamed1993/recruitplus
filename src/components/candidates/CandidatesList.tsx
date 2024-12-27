@@ -125,12 +125,20 @@ export function CandidatesList() {
                   </span>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to={`/candidates/${candidate.id}/pipeline`}>
-                  <Eye className="h-4 w-4 mr-2" />
-                  Pipeline anzeigen
-                </Link>
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to={`/candidates/${candidate.id}`}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    Details
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to={`/candidates/${candidate.id}/pipeline`}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    Pipeline
+                  </Link>
+                </Button>
+              </div>
             </div>
           </Card>
         ))}

@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { PersonalInfoFields } from "./PersonalInfoFields";
 import { ProfessionalInfoFields } from "./ProfessionalInfoFields";
 import { ResumeUpload } from "./ResumeUpload";
+import { Save } from "lucide-react";
 
 export function AddCandidateForm() {
   // Personal Information
@@ -63,23 +64,6 @@ export function AddCandidateForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      console.log("Submitting candidate data:", {
-        name,
-        email,
-        phone,
-        position,
-        birthdate,
-        address,
-        nationality,
-        location,
-        company,
-        department,
-        industry,
-        experience,
-        education,
-        university,
-      });
-
       const { data, error } = await supabase
         .from("candidates")
         .insert([
@@ -103,12 +87,7 @@ export function AddCandidateForm() {
         ])
         .select();
 
-      if (error) {
-        console.error("Supabase error:", error);
-        throw error;
-      }
-
-      console.log("Insert response:", data);
+      if (error) throw error;
 
       toast({
         title: "Kandidat hinzugefügt",
@@ -174,8 +153,9 @@ export function AddCandidateForm() {
         </div>
       </div>
 
-      <Button type="submit" className="w-full">
-        Kandidat hinzufügen
+      <Button type="submit" className="w-full flex items-center justify-center gap-2">
+        <Save className="h-4 w-4" />
+        Kandidat speichern
       </Button>
     </form>
   );
