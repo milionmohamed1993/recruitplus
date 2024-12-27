@@ -1,11 +1,12 @@
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { BarChart3, BriefcaseIcon, Users, FileText } from "lucide-react";
+import { BarChart3, BriefcaseIcon, Users, FileText, GitBranch } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const menuItems = [
   { title: "Dashboard", icon: BarChart3, path: "/" },
   { title: "Stellenangebote", icon: BriefcaseIcon, path: "/jobs" },
   { title: "Kandidaten", icon: Users, path: "/candidates" },
+  { title: "Pipeline", icon: GitBranch, path: "/pipeline" },
   { title: "Bewerbungen", icon: FileText, path: "/applications" },
 ];
 

@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import Jobs from "./pages/Jobs";
 import Candidates from "./pages/Candidates";
+import Pipeline from "./pages/Pipeline";
 import CandidatePipeline from "./pages/CandidatePipeline";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/candidates" element={<Candidates />} />
+            <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/candidates/:id/pipeline" element={<CandidatePipeline />} />
           </Routes>
         </BrowserRouter>
