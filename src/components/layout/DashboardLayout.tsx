@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 
 const menuItems = [
   { title: "Dashboard", icon: BarChart3, path: "/" },
-  { title: "Jobs", icon: BriefcaseIcon, path: "/jobs" },
-  { title: "Candidates", icon: Users, path: "/candidates" },
-  { title: "Applications", icon: FileText, path: "/applications" },
+  { title: "Stellenangebote", icon: BriefcaseIcon, path: "/jobs" },
+  { title: "Kandidaten", icon: Users, path: "/candidates" },
+  { title: "Bewerbungen", icon: FileText, path: "/applications" },
 ];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -15,7 +15,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Recruitment Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>Recruiting Platform</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {menuItems.map((item) => (
