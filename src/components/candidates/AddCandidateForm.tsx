@@ -103,7 +103,7 @@ export function AddCandidateForm() {
   };
 
   return (
-    <form id="candidate-form" onSubmit={handleSubmit} className="space-y-8">
+    <form id="add-candidate-form" onSubmit={handleSubmit} className="space-y-8">
       <div className="space-y-6 bg-white rounded-lg shadow p-6">
         <div>
           <h3 className="text-lg font-medium mb-4 text-primary">Persönliche Informationen</h3>

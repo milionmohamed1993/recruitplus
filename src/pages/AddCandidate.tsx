@@ -15,7 +15,7 @@ export default function AddCandidate() {
         </div>
         <Button 
           type="submit" 
-          form="candidate-form"
+          form="add-candidate-form"
           size="lg"
           className="flex items-center gap-2"
         >
