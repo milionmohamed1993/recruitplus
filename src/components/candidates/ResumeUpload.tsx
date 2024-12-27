@@ -99,7 +99,7 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
           id="resume-upload"
           type="file"
           className="hidden"
-          accept=".doc,.docx"
+          accept=".doc,.docx,.pdf"
           onChange={handleFileChange}
         />
         {file && (

@@ -3,8 +3,9 @@ import { supabase } from "@/lib/supabase";
 export async function parseResume(file: File, text: string, apiKey: string) {
   try {
     // Validate file type
-    if (!file.type.includes('document')) {
-      throw new Error('Bitte laden Sie eine .doc oder .docx Datei hoch');
+    const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!validTypes.includes(file.type)) {
+      throw new Error('Bitte laden Sie eine PDF, .doc oder .docx Datei hoch');
     }
 
     // Validate API key format
@@ -64,7 +65,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
