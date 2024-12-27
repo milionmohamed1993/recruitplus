@@ -1,25 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload } from "lucide-react";
-import { parseResume } from "@/utils/resumeParser";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
-import * as pdfjsLib from 'pdfjs-dist';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.mjs',
-  import.meta.url
-).toString();
+import { ResumeProgressDialog } from "./ResumeProgressDialog";
+import { ResumeUploadButton } from "./ResumeUploadButton";
+import { extractTextFromPDF } from "@/utils/pdfExtractor";
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -31,31 +17,6 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [progressStatus, setProgressStatus] = useState("");
-
-  const extractTextFromPDF = async (arrayBuffer: ArrayBuffer): Promise<string> => {
-    try {
-      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-      const pdf = await loadingTask.promise;
-      console.log('PDF loaded successfully, pages:', pdf.numPages);
-      
-      let fullText = '';
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        console.log(`Processing page ${i}/${pdf.numPages}`);
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += pageText + '\n';
-      }
-      
-      return fullText.replace(/\s+/g, ' ').trim();
-    } catch (error) {
-      console.error('PDF processing error:', error);
-      throw new Error('Failed to process PDF file: ' + (error as Error).message);
-    }
-  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -152,19 +113,102 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
 
       setProgress(85);
       setProgressStatus("KI-Analyse wird durchgeführt...");
-      const parsedData = await parseResume(file, textToAnalyze, OPENAI_API_KEY);
-      
-      if (parsedData) {
-        console.log('Resume parsed successfully, raw data:', parsedData);
-        const jsonData = JSON.parse(parsedData);
-        console.log('Parsed JSON data:', jsonData);
+
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: `Du bist ein Experte im Analysieren von Lebensläufen. 
+              Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie strukturiert:
+              
+              - Persönliche Informationen:
+                - Vollständiger Name
+                - E-Mail
+                - Telefonnummer
+                - Geburtsdatum (falls verfügbar)
+                - Adresse (falls verfügbar)
+                - Nationalität (falls verfügbar)
+                - Standort/Wohnort
+              
+              - Berufliche Informationen:
+                - Aktuelle/Letzte Position
+                - Firma
+                - Abteilung
+                - Branche
+                - Berufserfahrung in Jahren
+              
+              - Ausbildung:
+                - Höchster Abschluss
+                - Universität/Institution
+              
+              Gib die Informationen in diesem exakten JSON-Format zurück:
+              {
+                "personalInfo": {
+                  "name": "",
+                  "email": "",
+                  "phone": "",
+                  "birthdate": "",
+                  "address": "",
+                  "nationality": "",
+                  "location": ""
+                },
+                "professionalInfo": {
+                  "position": "",
+                  "company": "",
+                  "department": "",
+                  "industry": "",
+                  "experience": ""
+                },
+                "education": {
+                  "degree": "",
+                  "university": ""
+                }
+              }`
+            },
+            {
+              role: "user",
+              content: textToAnalyze
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 2000
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('OpenAI API Error:', errorData);
+        throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      console.log('OpenAI Response received:', data);
+
+      if (!data.choices?.[0]?.message?.content) {
+        console.error('Unexpected OpenAI response format:', data);
+        throw new Error('Unexpected response format from OpenAI');
+      }
+
+      try {
+        const parsedData = JSON.parse(data.choices[0].message.content);
+        console.log('Successfully parsed resume data:', parsedData);
         setProgress(100);
         setProgressStatus("Analyse abgeschlossen!");
-        onResumeAnalyzed(jsonData);
+        onResumeAnalyzed(parsedData);
         toast({
           title: "Analyse erfolgreich",
           description: "Der Lebenslauf wurde erfolgreich analysiert.",
         });
+      } catch (parseError) {
+        console.error('Error parsing OpenAI response:', parseError);
+        throw new Error('Failed to parse the resume data structure');
       }
     } catch (error: any) {
       console.error("Error parsing resume:", error);
@@ -178,49 +222,24 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
 
   return (
     <div className="space-y-4">
-      <Dialog open={isAnalyzing} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Lebenslauf wird verarbeitet</DialogTitle>
-            <DialogDescription>
-              {progressStatus}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-6">
-            <Progress value={progress} className="w-full" />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ResumeProgressDialog
+        isOpen={isAnalyzing}
+        progress={progress}
+        status={progressStatus}
+      />
 
-      <div className="flex items-center gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full md:w-auto"
-          onClick={() => document.getElementById('resume-upload')?.click()}
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          Lebenslauf hochladen
-        </Button>
-        <input
-          id="resume-upload"
-          type="file"
-          className="hidden"
-          accept=".doc,.docx,.pdf"
-          onChange={handleFileChange}
-        />
-        {file && (
-          <span className="text-sm text-muted-foreground">
-            {file.name}
-          </span>
-        )}
-      </div>
+      <ResumeUploadButton
+        onFileSelect={handleFileChange}
+        file={file}
+      />
+
       <Textarea
         placeholder="Fügen Sie hier den Lebenslauf ein..."
         value={resume}
         onChange={(e) => setResume(e.target.value)}
         className="h-64"
       />
+
       {resume && (
         <Button
           type="button"
