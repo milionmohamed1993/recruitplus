@@ -5,6 +5,7 @@ import { Upload } from "lucide-react";
 import { parseResume } from "@/utils/resumeParser";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
+import * as pdfParse from 'pdf-parse';
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -20,18 +21,24 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
     if (selectedFile) {
       setFile(selectedFile);
       try {
-        // Für PDFs verwenden wir FileReader mit readAsText
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const text = event.target?.result as string;
-          // Entferne PDF-spezifische Formatierung
-          const cleanText = text.replace(/(%PDF-.*?endobj)|(%[0-9A-Fa-f]{2})/g, ' ')
-                              .replace(/\s+/g, ' ')
-                              .trim();
+        if (selectedFile.type === 'application/pdf') {
+          // Für PDFs verwenden wir pdf-parse
+          const arrayBuffer = await selectedFile.arrayBuffer();
+          const pdfData = await pdfParse(arrayBuffer);
+          const cleanText = pdfData.text
+            .replace(/\s+/g, ' ')
+            .trim();
           setResume(cleanText);
-          console.log('File loaded successfully:', selectedFile.name);
-        };
-        reader.readAsText(selectedFile);
+        } else {
+          // Für andere Dateitypen verwenden wir FileReader
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            const text = event.target?.result as string;
+            setResume(text);
+          };
+          reader.readAsText(selectedFile);
+        }
+        console.log('File loaded successfully:', selectedFile.name);
       } catch (error) {
         console.error("Error reading file:", error);
         toast({

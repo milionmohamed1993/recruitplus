@@ -2,59 +2,61 @@ import { supabase } from "@/lib/supabase";
 
 export async function parseResume(file: File, text: string, apiKey: string) {
   try {
-    // Validate file type
     const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!validTypes.includes(file.type)) {
       throw new Error('Bitte laden Sie eine PDF, .doc oder .docx Datei hoch');
     }
 
-    // Validate API key format
     if (!apiKey || typeof apiKey !== 'string' || apiKey.trim() === '') {
       throw new Error('Invalid API key format');
     }
 
     console.log('Starting resume analysis with file:', file.name);
 
-    const systemPrompt = `Extract the following information from this resume in a structured format:
-      - Personal Information:
-        - Full Name
-        - Email
-        - Phone Number
-        - Location
-        - Nationality (if available)
-      - Professional Information:
-        - Current/Latest Position
-        - Company
-        - Years of Experience
-        - Key Skills
-        - Industry
-      - Education:
-        - Degree
-        - University/Institution
-        - Graduation Year
-      
-      Return the information in valid JSON format with these exact keys:
-      {
-        "personalInfo": {
-          "name": "",
-          "email": "",
-          "phone": "",
-          "location": "",
-          "nationality": ""
-        },
-        "professionalInfo": {
-          "position": "",
-          "company": "",
-          "experience": "",
-          "skills": [],
-          "industry": ""
-        },
-        "education": {
-          "degree": "",
-          "university": "",
-          "graduationYear": ""
-        }
-      }`;
+    const systemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
+    Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie strukturiert:
+    
+    - Persönliche Informationen:
+      - Vollständiger Name
+      - E-Mail
+      - Telefonnummer
+      - Standort/Wohnort
+      - Nationalität (falls verfügbar)
+    
+    - Berufliche Informationen:
+      - Aktuelle/Letzte Position
+      - Firma
+      - Berufserfahrung in Jahren
+      - Branche
+      - Abteilung
+    
+    - Ausbildung:
+      - Abschluss
+      - Universität/Institution
+      - Abschlussjahr
+    
+    Gib die Informationen in diesem exakten JSON-Format zurück:
+    {
+      "personalInfo": {
+        "name": "",
+        "email": "",
+        "phone": "",
+        "location": "",
+        "nationality": ""
+      },
+      "professionalInfo": {
+        "position": "",
+        "company": "",
+        "experience": "",
+        "industry": "",
+        "department": ""
+      },
+      "education": {
+        "degree": "",
+        "university": "",
+        "graduationYear": ""
+      }
+    }`;
 
     console.log('Sending request to OpenAI...');
     
@@ -65,7 +67,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",  // Korrigiert von gpt-4o-mini zu gpt-4
+        model: "gpt-4-turbo-preview",
         messages: [
           {
             role: "system",
@@ -76,7 +78,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
             content: text,
           },
         ],
-        temperature: 0.5,
+        temperature: 0.3,
       }),
     });
 
