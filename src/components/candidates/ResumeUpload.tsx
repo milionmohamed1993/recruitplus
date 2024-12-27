@@ -31,19 +31,25 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
           .upload(fileName, selectedFile);
 
         if (uploadError) {
+          console.error("Upload error:", uploadError);
           throw new Error('Failed to upload file to storage');
         }
+
+        console.log("File uploaded successfully:", uploadData);
 
         // Get public URL for the uploaded file
         const { data: { publicUrl } } = supabase.storage
           .from('resumes')
           .getPublicUrl(fileName);
 
+        console.log("Public URL generated:", publicUrl);
+
         // Download and parse the PDF
         const response = await fetch(publicUrl);
         const arrayBuffer = await response.arrayBuffer();
 
         if (selectedFile.type === 'application/pdf') {
+          console.log("Processing PDF file...");
           const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
           const pdf = await loadingTask.promise;
           let fullText = '';
@@ -61,13 +67,19 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
             .replace(/\s+/g, ' ')
             .trim();
           setResume(cleanText);
-          console.log('PDF text extracted successfully');
+          console.log('PDF text extracted:', cleanText.substring(0, 100) + '...');
+          
+          // Automatically analyze the resume after extraction
+          await analyzeResume(cleanText);
         } else {
           // For other file types use FileReader
           const text = await new Response(arrayBuffer).text();
           setResume(text);
+          console.log('Text file content extracted:', text.substring(0, 100) + '...');
+          
+          // Automatically analyze the resume after extraction
+          await analyzeResume(text);
         }
-        console.log('File loaded successfully:', selectedFile.name);
       } catch (error) {
         console.error("Error reading file:", error);
         toast({
@@ -79,8 +91,10 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
     }
   };
 
-  const analyzeResume = async () => {
-    if (!file || !resume) {
+  const analyzeResume = async (text?: string) => {
+    const textToAnalyze = text || resume;
+    
+    if (!file || !textToAnalyze) {
       toast({
         title: "Fehler",
         description: "Bitte laden Sie einen Lebenslauf hoch oder fügen Sie den Text ein.",
@@ -106,10 +120,11 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
         return;
       }
 
-      const parsedData = await parseResume(file, resume, OPENAI_API_KEY);
+      const parsedData = await parseResume(file, textToAnalyze, OPENAI_API_KEY);
       if (parsedData) {
+        console.log('Resume parsed successfully, raw data:', parsedData);
         const jsonData = JSON.parse(parsedData);
-        console.log('Resume parsed successfully:', jsonData);
+        console.log('Parsed JSON data:', jsonData);
         onResumeAnalyzed(jsonData);
         toast({
           title: "Analyse erfolgreich",
@@ -162,7 +177,7 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       {resume && (
         <Button
           type="button"
-          onClick={analyzeResume}
+          onClick={() => analyzeResume()}
           disabled={isAnalyzing}
         >
           {isAnalyzing ? "Analysiere..." : "Lebenslauf analysieren"}
