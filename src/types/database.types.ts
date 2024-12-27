@@ -1,3 +1,30 @@
+export interface Database {
+  public: {
+    Tables: {
+      jobs: {
+        Row: Job
+        Insert: Omit<Job, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Job, 'id'>>
+      }
+      candidates: {
+        Row: Candidate
+        Insert: Omit<Candidate, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Candidate, 'id'>>
+      }
+      clients: {
+        Row: Client
+        Insert: Omit<Client, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Client, 'id'>>
+      }
+      applications: {
+        Row: Application
+        Insert: Omit<Application, 'id' | 'date_applied'>
+        Update: Partial<Omit<Application, 'id'>>
+      }
+    }
+  }
+}
+
 export interface Candidate {
   id: number
   name: string
