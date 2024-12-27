@@ -7,10 +7,8 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).href;
+// Use CDN worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -46,7 +44,8 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
         const arrayBuffer = await response.arrayBuffer();
 
         if (selectedFile.type === 'application/pdf') {
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+          const pdf = await loadingTask.promise;
           let fullText = '';
           
           for (let i = 1; i <= pdf.numPages; i++) {
