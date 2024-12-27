@@ -67,7 +67,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4-turbo-preview",
         messages: [
           {
             role: "system",
@@ -89,7 +89,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
     }
 
     const data = await response.json();
-    console.log('OpenAI Response received');
+    console.log('OpenAI Response received:', data);
 
     if (!data.choices?.[0]?.message?.content) {
       console.error('Unexpected OpenAI response format:', data);
