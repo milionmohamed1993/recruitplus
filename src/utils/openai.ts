@@ -15,9 +15,12 @@ export async function analyzeResumeWithGPT(text: string) {
     }
 
     if (!secretData?.value) {
+      console.error('OpenAI API key not found in Supabase secrets');
       throw new Error('OpenAI API key not found in secrets');
     }
 
+    console.log('Making request to OpenAI API...');
+    
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
