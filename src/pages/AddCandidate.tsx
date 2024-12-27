@@ -6,24 +6,26 @@ import { UserPlus } from "lucide-react";
 export default function AddCandidate() {
   return (
     <DashboardLayout>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Kandidat erstellen</h1>
-          <p className="text-muted-foreground">
-            Fügen Sie einen neuen Kandidaten hinzu und analysieren Sie seinen Lebenslauf
-          </p>
+      <div className="container mx-auto py-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Kandidat erstellen</h1>
+            <p className="text-muted-foreground">
+              Fügen Sie einen neuen Kandidaten hinzu und analysieren Sie seinen Lebenslauf
+            </p>
+          </div>
+          <Button 
+            type="submit" 
+            form="add-candidate-form"
+            size="lg"
+            className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+          >
+            <UserPlus className="h-5 w-5" />
+            Kandidat erstellen
+          </Button>
         </div>
-        <Button 
-          type="submit" 
-          form="add-candidate-form"
-          size="lg"
-          className="flex items-center gap-2"
-        >
-          <UserPlus className="h-5 w-5" />
-          Kandidat erstellen
-        </Button>
+        <AddCandidateForm />
       </div>
-      <AddCandidateForm />
     </DashboardLayout>
   );
 }
