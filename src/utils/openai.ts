@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 
 export async function analyzeResumeWithGPT(text: string) {
   try {
+    console.log('Starting resume analysis...');
     console.log('Fetching OpenAI API key from Supabase secrets...');
     
     // Fetch the API key from Supabase secrets
@@ -16,9 +17,17 @@ export async function analyzeResumeWithGPT(text: string) {
       throw new Error('Failed to fetch OpenAI API key');
     }
 
-    if (!secretData?.value) {
-      console.error('OpenAI API key not found in Supabase secrets');
+    if (!secretData) {
+      console.error('No data returned from secrets table');
       throw new Error('OpenAI API key not found in secrets');
+    }
+
+    console.log('API key retrieved successfully');
+    console.log('Secret data structure:', secretData);
+
+    if (!secretData.value) {
+      console.error('API key value is empty or undefined');
+      throw new Error('OpenAI API key value is empty');
     }
 
     console.log('Making request to OpenAI API...');
@@ -74,6 +83,7 @@ export async function analyzeResumeWithGPT(text: string) {
     }
 
     const data = await response.json();
+    console.log('OpenAI API response received successfully');
     return data.choices[0].message.content;
   } catch (error) {
     console.error('Error in analyzeResumeWithGPT:', error);
