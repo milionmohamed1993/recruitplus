@@ -11,6 +11,10 @@ export function AddCandidateForm() {
   const [resume, setResume] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [position, setPosition] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -19,6 +23,13 @@ export function AddCandidateForm() {
     if (selectedFile) {
       setFile(selectedFile);
       try {
+        if (selectedFile.type === 'application/pdf') {
+          toast({
+            title: "PDF-Verarbeitung",
+            description: "PDF-Dateien werden derzeit noch nicht unterstützt. Bitte kopieren Sie den Inhalt manuell in das Textfeld.",
+          });
+          return;
+        }
         const text = await selectedFile.text();
         setResume(text);
         toast({
@@ -76,16 +87,84 @@ export function AddCandidateForm() {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { data, error } = await supabase
+        .from("candidates")
+        .insert([
+          {
+            name,
+            email,
+            phone,
+            position,
+            status: "new",
+          },
+        ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Kandidat hinzugefügt",
+        description: "Der Kandidat wurde erfolgreich hinzugefügt.",
+      });
+      navigate("/candidates");
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: "Beim Hinzufügen des Kandidaten ist ein Fehler aufgetreten.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-4">
         <div>
+          <label className="block text-sm font-medium mb-2">Name</label>
+          <Input
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Max Mustermann"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">E-Mail</label>
+          <Input
+            required
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="max@beispiel.de"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Telefon</label>
+          <Input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+49 123 456789"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Position</label>
+          <Input
+            required
+            value={position}
+            onChange={(e) => setPosition(e.target.value)}
+            placeholder="Software Entwickler"
+          />
+        </div>
+        <div>
           <label className="block text-sm font-medium mb-2">
-            Lebenslauf
+            Lebenslauf (Optional)
           </label>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <Button
+                type="button"
                 variant="outline"
                 className="w-full md:w-auto"
                 onClick={() => document.getElementById('resume-upload')?.click()}
@@ -97,7 +176,7 @@ export function AddCandidateForm() {
                 id="resume-upload"
                 type="file"
                 className="hidden"
-                accept=".txt,.pdf,.doc,.docx"
+                accept=".txt,.doc,.docx"
                 onChange={handleFileChange}
               />
               {file && (
@@ -114,10 +193,19 @@ export function AddCandidateForm() {
             />
           </div>
         </div>
-        <Button onClick={analyzeResume} disabled={isAnalyzing}>
-          {isAnalyzing ? "Analysiere..." : "Lebenslauf analysieren"}
-        </Button>
+        {resume && (
+          <Button
+            type="button"
+            onClick={analyzeResume}
+            disabled={isAnalyzing}
+          >
+            {isAnalyzing ? "Analysiere..." : "Lebenslauf analysieren"}
+          </Button>
+        )}
       </div>
-    </div>
+      <Button type="submit" className="w-full">
+        Kandidat hinzufügen
+      </Button>
+    </form>
   );
 }
