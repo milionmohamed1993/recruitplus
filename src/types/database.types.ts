@@ -30,7 +30,8 @@ export interface Candidate {
   name: string
   email: string
   phone: string | null
-  skills: string[]
+  position: string
+  status: 'new' | 'screening' | 'interview' | 'offer' | 'hired'
   created_at: string
   updated_at: string
 }

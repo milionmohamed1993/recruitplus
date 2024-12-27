@@ -1,5 +1,5 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { CandidatesPipeline } from "@/components/candidates/CandidatesPipeline";
+import { CandidatesList } from "@/components/candidates/CandidatesList";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
@@ -18,7 +18,7 @@ export default function Candidates() {
           Kandidat hinzufügen
         </Button>
       </div>
-      <CandidatesPipeline />
+      <CandidatesList />
     </DashboardLayout>
   );
 }
