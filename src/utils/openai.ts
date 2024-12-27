@@ -78,16 +78,25 @@ export async function analyzeResumeWithGPT(text: string) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenAI API Error:', errorData);
-      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+      const errorText = await response.text();
+      console.error('OpenAI API Error Response:', errorText);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json();
-    console.log('OpenAI API response received successfully');
+    // Clone the response before reading it
+    const responseClone = response.clone();
     
-    // Clone the response before returning it
-    return JSON.stringify(JSON.parse(data.choices[0].message.content));
+    try {
+      const data = await response.json();
+      console.log('OpenAI API response received successfully');
+      return JSON.stringify(JSON.parse(data.choices[0].message.content));
+    } catch (parseError) {
+      // If JSON parsing fails, try to get the raw text from the cloned response
+      const rawText = await responseClone.text();
+      console.error('Error parsing JSON response:', parseError);
+      console.error('Raw response:', rawText);
+      throw new Error('Failed to parse OpenAI response');
+    }
   } catch (error) {
     console.error('Error in analyzeResumeWithGPT:', error);
     throw error;
