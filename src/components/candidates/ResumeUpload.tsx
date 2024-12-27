@@ -23,6 +23,7 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       try {
         const text = await selectedFile.text();
         setResume(text);
+        console.log('File loaded successfully:', selectedFile.name);
       } catch (error) {
         console.error("Error reading file:", error);
         toast({
@@ -55,19 +56,22 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
 
     setIsAnalyzing(true);
     try {
+      console.log('Starting resume analysis...');
       const parsedData = await parseResume(file, resume, apiKey);
       if (parsedData) {
-        onResumeAnalyzed(JSON.parse(parsedData));
+        const jsonData = JSON.parse(parsedData);
+        console.log('Resume parsed successfully:', jsonData);
+        onResumeAnalyzed(jsonData);
         toast({
           title: "Analyse erfolgreich",
           description: "Der Lebenslauf wurde erfolgreich analysiert.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error parsing resume:", error);
       toast({
         title: "Fehler bei der Analyse",
-        description: "Der Lebenslauf konnte nicht analysiert werden. Bitte versuchen Sie es erneut.",
+        description: error.message || "Der Lebenslauf konnte nicht analysiert werden. Bitte versuchen Sie es erneut.",
         variant: "destructive",
       });
     } finally {

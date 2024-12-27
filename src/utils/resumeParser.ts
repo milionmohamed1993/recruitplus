@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+
 export async function parseResume(file: File, text: string, apiKey: string) {
   try {
     if (file.type === 'application/pdf') {
@@ -8,6 +10,13 @@ export async function parseResume(file: File, text: string, apiKey: string) {
       throw new Error('Bitte laden Sie eine .doc oder .docx Datei hoch');
     }
 
+    // Validate API key format
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim() === '') {
+      throw new Error('Invalid API key format');
+    }
+
+    console.log('Attempting to parse resume with OpenAI...');
+
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -15,7 +24,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4",
         messages: [
           {
             role: "system",
@@ -34,10 +43,13 @@ export async function parseResume(file: File, text: string, apiKey: string) {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to analyze resume');
+      const errorData = await response.json();
+      console.error('OpenAI API Error:', errorData);
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const data = await response.json();
+    console.log('Successfully parsed resume:', data);
     return data.choices[0].message.content;
   } catch (error) {
     console.error("Error parsing resume:", error);
