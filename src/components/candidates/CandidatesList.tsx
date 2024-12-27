@@ -16,7 +16,7 @@ import {
 export function CandidatesList() {
   const { data: candidates, isLoading } = useCandidates();
   const [searchTerm, setSearchTerm] = useState("");
-  const [positionFilter, setPositionFilter] = useState<string>("");
+  const [positionFilter, setPositionFilter] = useState<string>("all");
 
   if (isLoading) {
     return <div>Lädt Kandidaten...</div>;
@@ -32,7 +32,7 @@ export function CandidatesList() {
       .includes(searchTerm.toLowerCase()) || 
       candidate.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesPosition = positionFilter === "" || candidate.position === positionFilter;
+    const matchesPosition = positionFilter === "all" || candidate.position === positionFilter;
 
     return matchesSearch && matchesPosition;
   });
@@ -52,7 +52,7 @@ export function CandidatesList() {
             <SelectValue placeholder="Position filtern" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Alle Positionen</SelectItem>
+            <SelectItem value="all">Alle Positionen</SelectItem>
             {positions.map((position) => (
               <SelectItem key={position} value={position}>
                 {position}
