@@ -16,17 +16,16 @@ export async function analyzeResumeWithGPT(text: string) {
       throw new Error(`Failed to fetch OpenAI API key: ${secretError.message}`);
     }
 
-    if (!secretData) {
-      console.error('No API key found in secrets table');
-      throw new Error('OpenAI API key not found in secrets');
+    if (!secretData?.value) {
+      console.error('No valid API key found');
+      throw new Error('OpenAI API key not found or invalid');
     }
 
-    if (!secretData.value) {
-      console.error('API key value is empty');
-      throw new Error('OpenAI API key value is empty');
+    const apiKey = secretData.value.trim();
+    if (!apiKey.startsWith('sk-')) {
+      throw new Error('Invalid OpenAI API key format');
     }
 
-    const apiKey = secretData.value;
     console.log('Making request to OpenAI API...');
     
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -36,7 +35,7 @@ export async function analyzeResumeWithGPT(text: string) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
