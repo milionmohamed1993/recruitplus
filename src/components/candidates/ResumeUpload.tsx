@@ -7,7 +7,6 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Use the bundled worker from the pdf.js package
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.js',
   import.meta.url,
@@ -27,13 +26,29 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
     if (selectedFile) {
       setFile(selectedFile);
       try {
+        // Upload file to Supabase Storage
+        const fileName = `${Date.now()}_${selectedFile.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('resumes')
+          .upload(fileName, selectedFile);
+
+        if (uploadError) {
+          throw new Error('Failed to upload file to storage');
+        }
+
+        // Get public URL for the uploaded file
+        const { data: { publicUrl } } = supabase.storage
+          .from('resumes')
+          .getPublicUrl(fileName);
+
+        // Download and parse the PDF
+        const response = await fetch(publicUrl);
+        const arrayBuffer = await response.arrayBuffer();
+
         if (selectedFile.type === 'application/pdf') {
-          // For PDFs, use pdf.js
-          const arrayBuffer = await selectedFile.arrayBuffer();
           const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
           let fullText = '';
           
-          // Extract text from all pages
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
@@ -50,12 +65,8 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
           console.log('PDF text extracted successfully');
         } else {
           // For other file types use FileReader
-          const reader = new FileReader();
-          reader.onload = async (event) => {
-            const text = event.target?.result as string;
-            setResume(text);
-          };
-          reader.readAsText(selectedFile);
+          const text = await new Response(arrayBuffer).text();
+          setResume(text);
         }
         console.log('File loaded successfully:', selectedFile.name);
       } catch (error) {
