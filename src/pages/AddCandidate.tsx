@@ -18,7 +18,8 @@ export default function AddCandidate() {
             type="submit" 
             form="add-candidate-form"
             size="lg"
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+            variant="default"
+            className="flex items-center gap-2 font-semibold shadow-md hover:shadow-lg transition-all"
           >
             <UserPlus className="h-5 w-5" />
             Kandidat erstellen
