@@ -47,6 +47,18 @@ export function ResumeUploadButton({ onFileSelect, files, onRemoveFile }: Resume
           ))}
         </div>
       )}
+      
+      {files.length > 0 && (
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full md:w-auto"
+          onClick={() => document.getElementById('resume-upload')?.click()}
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          Weitere Dateien hinzufügen
+        </Button>
+      )}
     </div>
   );
 }
