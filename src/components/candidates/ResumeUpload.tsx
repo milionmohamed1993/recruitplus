@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { parseResume } from "@/utils/resumeParser";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -14,7 +14,6 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
   const [resume, setResume] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [apiKey, setApiKey] = useState("");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -44,20 +43,25 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       });
       return;
     }
-    
-    if (!apiKey) {
-      toast({
-        title: "API-Schlüssel fehlt",
-        description: "Bitte geben Sie einen OpenAI API-Schlüssel ein.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setIsAnalyzing(true);
     try {
       console.log('Starting resume analysis...');
-      const parsedData = await parseResume(file, resume, apiKey);
+      const { data: { OPENAI_API_KEY } } = await supabase
+        .from('secrets')
+        .select('OPENAI_API_KEY')
+        .single();
+
+      if (!OPENAI_API_KEY) {
+        toast({
+          title: "API-Schlüssel fehlt",
+          description: "Bitte fügen Sie den OpenAI API-Schlüssel in den Projekteinstellungen hinzu.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const parsedData = await parseResume(file, resume, OPENAI_API_KEY);
       if (parsedData) {
         const jsonData = JSON.parse(parsedData);
         console.log('Resume parsed successfully:', jsonData);
@@ -103,19 +107,6 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
             {file.name}
           </span>
         )}
-      </div>
-      <div className="space-y-2">
-        <label className="text-sm font-medium">OpenAI API-Schlüssel</label>
-        <Input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Geben Sie Ihren OpenAI API-Schlüssel ein"
-          className="font-mono"
-        />
-        <p className="text-xs text-muted-foreground">
-          Dieser Schlüssel wird nur temporär verwendet und nicht gespeichert.
-        </p>
       </div>
       <Textarea
         placeholder="Fügen Sie hier den Lebenslauf ein..."
