@@ -6,7 +6,6 @@ export function useApplications(candidateId: number) {
   return useQuery({
     queryKey: ["applications", candidateId],
     queryFn: async (): Promise<Application[]> => {
-      console.log("Fetching applications...");
       const { data, error } = await supabase
         .from("applications")
         .select(`
@@ -17,12 +16,7 @@ export function useApplications(candidateId: number) {
         `)
         .eq("candidate_id", candidateId);
 
-      if (error) {
-        console.error("Error fetching applications:", error);
-        throw error;
-      }
-
-      console.log("Applications fetched successfully:", data);
+      if (error) throw error;
       return data;
     },
   });

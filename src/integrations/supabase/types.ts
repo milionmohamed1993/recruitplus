@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      applications: {
+        Row: {
+          candidate_id: number | null
+          date_applied: string | null
+          id: number
+          job_id: number | null
+          notes: string | null
+          status: string | null
+        }
+        Insert: {
+          candidate_id?: number | null
+          date_applied?: string | null
+          id?: number
+          job_id?: number | null
+          notes?: string | null
+          status?: string | null
+        }
+        Update: {
+          candidate_id?: number | null
+          date_applied?: string | null
+          id?: number
+          job_id?: number | null
+          notes?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidates: {
         Row: {
           address: string | null
