@@ -7,8 +7,12 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Use CDN worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Use the correct version number that matches our installed package
+const pdfWorkerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
+
+console.log('PDF.js version:', pdfjsLib.version);
+console.log('Worker URL:', pdfWorkerSrc);
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -24,6 +28,7 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
     if (selectedFile) {
       setFile(selectedFile);
       try {
+        console.log('Starting file processing...');
         // Upload file to Supabase Storage
         const fileName = `${Date.now()}_${selectedFile.name}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -50,27 +55,37 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
 
         if (selectedFile.type === 'application/pdf') {
           console.log("Processing PDF file...");
-          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-          const pdf = await loadingTask.promise;
-          let fullText = '';
-          
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items
-              .map((item: any) => item.str)
-              .join(' ');
-            fullText += pageText + '\n';
+          try {
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            console.log('PDF loading task created');
+            
+            const pdf = await loadingTask.promise;
+            console.log('PDF loaded successfully, pages:', pdf.numPages);
+            
+            let fullText = '';
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+              console.log(`Processing page ${i}/${pdf.numPages}`);
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              const pageText = textContent.items
+                .map((item: any) => item.str)
+                .join(' ');
+              fullText += pageText + '\n';
+            }
+            
+            const cleanText = fullText
+              .replace(/\s+/g, ' ')
+              .trim();
+            setResume(cleanText);
+            console.log('PDF text extracted:', cleanText.substring(0, 100) + '...');
+            
+            // Automatically analyze the resume after extraction
+            await analyzeResume(cleanText);
+          } catch (pdfError) {
+            console.error('PDF processing error:', pdfError);
+            throw new Error('Failed to process PDF file: ' + pdfError.message);
           }
-          
-          const cleanText = fullText
-            .replace(/\s+/g, ' ')
-            .trim();
-          setResume(cleanText);
-          console.log('PDF text extracted:', cleanText.substring(0, 100) + '...');
-          
-          // Automatically analyze the resume after extraction
-          await analyzeResume(cleanText);
         } else {
           // For other file types use FileReader
           const text = await new Response(arrayBuffer).text();
@@ -80,11 +95,11 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
           // Automatically analyze the resume after extraction
           await analyzeResume(text);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error reading file:", error);
         toast({
           title: "Fehler beim Lesen der Datei",
-          description: "Die Datei konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
+          description: error.message || "Die Datei konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
           variant: "destructive",
         });
       }
