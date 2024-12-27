@@ -69,7 +69,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4", // Changed from gpt-4o-mini to gpt-4
         messages: [
           {
             role: "system",
