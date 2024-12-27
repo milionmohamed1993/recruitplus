@@ -9,6 +9,8 @@ import Jobs from "./pages/Jobs";
 import Candidates from "./pages/Candidates";
 import Pipeline from "./pages/Pipeline";
 import CandidatePipeline from "./pages/CandidatePipeline";
+import AddCandidate from "./pages/AddCandidate";
+import CandidateDetail from "./pages/CandidateDetail";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +25,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/candidates" element={<Candidates />} />
+            <Route path="/candidates/add" element={<AddCandidate />} />
+            <Route path="/candidates/:id" element={<CandidateDetail />} />
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/candidates/:id/pipeline" element={<CandidatePipeline />} />
           </Routes>

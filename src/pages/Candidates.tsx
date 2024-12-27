@@ -2,6 +2,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { CandidatesList } from "@/components/candidates/CandidatesList";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Candidates() {
   return (
@@ -13,9 +14,11 @@ export default function Candidates() {
             Verwalten Sie Ihre Kandidaten und deren Bewerbungsprozess
           </p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Kandidat hinzufügen
+        <Button asChild>
+          <Link to="/candidates/add">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Kandidat hinzufügen
+          </Link>
         </Button>
       </div>
       <CandidatesList />
