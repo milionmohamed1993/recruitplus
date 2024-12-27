@@ -105,7 +105,7 @@ export function AddCandidateForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form id="candidate-form" onSubmit={handleSubmit} className="space-y-8">
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-medium mb-4">Persönliche Informationen</h3>
@@ -152,11 +152,6 @@ export function AddCandidateForm() {
           <ResumeUpload onResumeAnalyzed={handleResumeAnalyzed} />
         </div>
       </div>
-
-      <Button type="submit" className="w-full flex items-center justify-center gap-2">
-        <Save className="h-4 w-4" />
-        Kandidat speichern
-      </Button>
     </form>
   );
 }
