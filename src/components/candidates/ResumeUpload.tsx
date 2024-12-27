@@ -5,7 +5,10 @@ import { Upload } from "lucide-react";
 import { parseResume } from "@/utils/resumeParser";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
-import * as pdfParse from 'pdf-parse';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Set worker path for pdf.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -22,15 +25,28 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       setFile(selectedFile);
       try {
         if (selectedFile.type === 'application/pdf') {
-          // Für PDFs verwenden wir pdf-parse
+          // For PDFs, use pdf.js
           const arrayBuffer = await selectedFile.arrayBuffer();
-          const pdfData = await pdfParse(arrayBuffer);
-          const cleanText = pdfData.text
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let fullText = '';
+          
+          // Extract text from all pages
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items
+              .map((item: any) => item.str)
+              .join(' ');
+            fullText += pageText + '\n';
+          }
+          
+          const cleanText = fullText
             .replace(/\s+/g, ' ')
             .trim();
           setResume(cleanText);
+          console.log('PDF text extracted successfully');
         } else {
-          // Für andere Dateitypen verwenden wir FileReader
+          // For other file types use FileReader
           const reader = new FileReader();
           reader.onload = async (event) => {
             const text = event.target?.result as string;
