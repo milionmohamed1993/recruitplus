@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase";
 export async function analyzeResumeWithGPT(text: string) {
   try {
     console.log('Starting resume analysis...');
-    console.log('Fetching OpenAI API key from Supabase secrets...');
     
     // Fetch the API key from Supabase secrets
     const { data: secretData, error: secretError } = await supabase
@@ -14,28 +13,27 @@ export async function analyzeResumeWithGPT(text: string) {
 
     if (secretError) {
       console.error('Error fetching OpenAI API key:', secretError);
-      throw new Error('Failed to fetch OpenAI API key');
+      throw new Error(`Failed to fetch OpenAI API key: ${secretError.message}`);
     }
 
     if (!secretData) {
-      console.error('No data returned from secrets table');
+      console.error('No API key found in secrets table');
       throw new Error('OpenAI API key not found in secrets');
     }
 
-    console.log('Secret data structure:', secretData);
-
     if (!secretData.value) {
-      console.error('API key value is empty or undefined');
+      console.error('API key value is empty');
       throw new Error('OpenAI API key value is empty');
     }
 
+    const apiKey = secretData.value;
     console.log('Making request to OpenAI API...');
     
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${secretData.value}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4",
