@@ -20,9 +20,18 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
     if (selectedFile) {
       setFile(selectedFile);
       try {
-        const text = await selectedFile.text();
-        setResume(text);
-        console.log('File loaded successfully:', selectedFile.name);
+        // Für PDFs verwenden wir FileReader mit readAsText
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const text = event.target?.result as string;
+          // Entferne PDF-spezifische Formatierung
+          const cleanText = text.replace(/(%PDF-.*?endobj)|(%[0-9A-Fa-f]{2})/g, ' ')
+                              .replace(/\s+/g, ' ')
+                              .trim();
+          setResume(cleanText);
+          console.log('File loaded successfully:', selectedFile.name);
+        };
+        reader.readAsText(selectedFile);
       } catch (error) {
         console.error("Error reading file:", error);
         toast({
