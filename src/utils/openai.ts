@@ -22,7 +22,6 @@ export async function analyzeResumeWithGPT(text: string) {
       throw new Error('OpenAI API key not found in secrets');
     }
 
-    console.log('API key retrieved successfully');
     console.log('Secret data structure:', secretData);
 
     if (!secretData.value) {
@@ -44,27 +43,29 @@ export async function analyzeResumeWithGPT(text: string) {
           {
             role: "system",
             content: `Du bist ein Experte im Analysieren von Lebensläufen. 
-            Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie strukturiert:
-            
-            - Persönliche Informationen:
-              - Vollständiger Name
-              - E-Mail
-              - Telefonnummer
-              - Geburtsdatum (falls verfügbar)
-              - Adresse (falls verfügbar)
-              - Nationalität (falls verfügbar)
-              - Standort/Wohnort
-            
-            - Berufliche Informationen:
-              - Aktuelle/Letzte Position
-              - Firma
-              - Abteilung
-              - Branche
-              - Berufserfahrung in Jahren
-            
-            - Ausbildung:
-              - Höchster Abschluss
-              - Universität/Institution`
+            Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie als JSON:
+            {
+              "personalInfo": {
+                "name": "",
+                "email": "",
+                "phone": "",
+                "birthdate": "",
+                "address": "",
+                "nationality": "",
+                "location": ""
+              },
+              "professionalInfo": {
+                "position": "",
+                "company": "",
+                "department": "",
+                "industry": "",
+                "experience": ""
+              },
+              "education": {
+                "degree": "",
+                "university": ""
+              }
+            }`
           },
           {
             role: "user",
