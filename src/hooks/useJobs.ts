@@ -1,24 +1,18 @@
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase'
-import { Job } from '@/types/database.types'
+import { supabase } from "@/lib/supabase";
+import { useQuery } from "@tanstack/react-query";
+import type { Job } from "@/types/database.types";
 
-export const useJobs = () => {
+export function useJobs() {
   return useQuery({
-    queryKey: ['jobs'],
+    queryKey: ["jobs"],
     queryFn: async (): Promise<Job[]> => {
-      console.log('Fetching jobs...')
       const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .from("jobs")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error('Error fetching jobs:', error)
-        throw error
-      }
-
-      console.log('Jobs fetched successfully:', data)
-      return data
+      if (error) throw error;
+      return data;
     },
-  })
+  });
 }

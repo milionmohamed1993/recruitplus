@@ -16,9 +16,9 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
           {/* Timeline items will be populated from parsed resume data */}
           <div className="relative pl-4 border-l-2 border-border">
             <div className="absolute w-2 h-2 bg-primary rounded-full -left-[5px] top-2" />
-            <div className="font-medium">Position Title</div>
-            <div className="text-sm text-muted-foreground">Company Name</div>
-            <div className="text-sm text-muted-foreground">2020 - Present</div>
+            <div className="font-medium">{candidate.position}</div>
+            <div className="text-sm text-muted-foreground">{candidate.company}</div>
+            <div className="text-sm text-muted-foreground">Aktuelle Position</div>
           </div>
         </div>
       </CardContent>
