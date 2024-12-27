@@ -8,10 +8,8 @@ import { supabase } from "@/lib/supabase";
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 
-// Import the worker directly from node_modules
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -43,7 +41,7 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       return fullText.replace(/\s+/g, ' ').trim();
     } catch (error) {
       console.error('PDF processing error:', error);
-      throw new Error('Failed to process PDF file: ' + error.message);
+      throw new Error('Failed to process PDF file: ' + (error as Error).message);
     }
   };
 
@@ -191,4 +189,3 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       )}
     </div>
   );
-}
