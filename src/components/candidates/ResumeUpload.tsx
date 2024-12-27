@@ -189,3 +189,4 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       )}
     </div>
   );
+}
