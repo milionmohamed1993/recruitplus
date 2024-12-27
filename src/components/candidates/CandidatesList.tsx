@@ -17,6 +17,8 @@ export function CandidatesList() {
   const { data: candidates, isLoading } = useCandidates();
   const [searchTerm, setSearchTerm] = useState("");
   const [positionFilter, setPositionFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [experienceFilter, setExperienceFilter] = useState<string>("all");
 
   if (isLoading) {
     return <div>Lädt Kandidaten...</div>;
@@ -27,28 +29,29 @@ export function CandidatesList() {
   );
 
   const filteredCandidates = candidates?.filter((candidate) => {
-    const matchesSearch = candidate.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase()) || 
+    const matchesSearch = 
+      candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       candidate.email.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesPosition = positionFilter === "all" || candidate.position === positionFilter;
+    const matchesStatus = statusFilter === "all" || candidate.status === statusFilter;
 
-    return matchesSearch && matchesPosition;
+    return matchesSearch && matchesPosition && matchesStatus;
   });
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4 items-center">
-        <div className="flex-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
           <Input
             placeholder="Nach Name oder Email suchen..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        
         <Select value={positionFilter} onValueChange={setPositionFilter}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger>
             <SelectValue placeholder="Position filtern" />
           </SelectTrigger>
           <SelectContent>
@@ -58,6 +61,33 @@ export function CandidatesList() {
                 {position}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder="Pipeline-Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle Status</SelectItem>
+            <SelectItem value="new">Neu</SelectItem>
+            <SelectItem value="screening">Screening</SelectItem>
+            <SelectItem value="interview">Interview</SelectItem>
+            <SelectItem value="offer">Angebot</SelectItem>
+            <SelectItem value="hired">Eingestellt</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={experienceFilter} onValueChange={setExperienceFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder="Erfahrung" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle Erfahrungsstufen</SelectItem>
+            <SelectItem value="junior">Junior (0-2 Jahre)</SelectItem>
+            <SelectItem value="mid">Mid-Level (3-5 Jahre)</SelectItem>
+            <SelectItem value="senior">Senior (5+ Jahre)</SelectItem>
+            <SelectItem value="lead">Lead (8+ Jahre)</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -73,6 +103,11 @@ export function CandidatesList() {
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
                   {candidate.email}
+                </div>
+                <div className="text-sm mt-1">
+                  <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800">
+                    {candidate.status}
+                  </span>
                 </div>
               </div>
               <Button variant="ghost" size="sm" asChild>
