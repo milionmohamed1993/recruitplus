@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { parseResume } from "@/utils/resumeParser";
+import { toast } from "@/components/ui/use-toast";
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -12,6 +14,7 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
   const [resume, setResume] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [apiKey, setApiKey] = useState("");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -22,19 +25,51 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
         setResume(text);
       } catch (error) {
         console.error("Error reading file:", error);
+        toast({
+          title: "Fehler beim Lesen der Datei",
+          description: "Die Datei konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
+          variant: "destructive",
+        });
       }
     }
   };
 
   const analyzeResume = async () => {
-    if (!file || !resume) return;
+    if (!file || !resume) {
+      toast({
+        title: "Fehler",
+        description: "Bitte laden Sie einen Lebenslauf hoch oder fügen Sie den Text ein.",
+        variant: "destructive",
+      });
+      return;
+    }
     
+    if (!apiKey) {
+      toast({
+        title: "API-Schlüssel fehlt",
+        description: "Bitte geben Sie einen OpenAI API-Schlüssel ein.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     try {
-      const parsedData = await parseResume(file, resume);
+      const parsedData = await parseResume(file, resume, apiKey);
       if (parsedData) {
         onResumeAnalyzed(JSON.parse(parsedData));
+        toast({
+          title: "Analyse erfolgreich",
+          description: "Der Lebenslauf wurde erfolgreich analysiert.",
+        });
       }
+    } catch (error) {
+      console.error("Error parsing resume:", error);
+      toast({
+        title: "Fehler bei der Analyse",
+        description: "Der Lebenslauf konnte nicht analysiert werden. Bitte versuchen Sie es erneut.",
+        variant: "destructive",
+      });
     } finally {
       setIsAnalyzing(false);
     }
@@ -64,6 +99,19 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
             {file.name}
           </span>
         )}
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">OpenAI API-Schlüssel</label>
+        <Input
+          type="password"
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          placeholder="Geben Sie Ihren OpenAI API-Schlüssel ein"
+          className="font-mono"
+        />
+        <p className="text-xs text-muted-foreground">
+          Dieser Schlüssel wird nur temporär verwendet und nicht gespeichert.
+        </p>
       </div>
       <Textarea
         placeholder="Fügen Sie hier den Lebenslauf ein..."
