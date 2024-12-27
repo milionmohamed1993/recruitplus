@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { useCandidates } from "@/hooks/useCandidates";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -41,6 +41,21 @@ export function CandidatesList() {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold tracking-tight">Kandidaten</h2>
+          <p className="text-muted-foreground">
+            Verwalten Sie hier Ihre Kandidaten und deren Bewerbungsprozesse.
+          </p>
+        </div>
+        <Button asChild>
+          <Link to="/candidates/add" className="flex items-center gap-2">
+            <UserPlus className="h-4 w-4" />
+            Kandidat hinzufügen
+          </Link>
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <Input
