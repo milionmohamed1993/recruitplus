@@ -11,6 +11,8 @@ export type Database = {
     Tables: {
       candidates: {
         Row: {
+          address: string | null
+          birthdate: string | null
           company: string | null
           created_at: string
           department: string | null
@@ -19,7 +21,9 @@ export type Database = {
           experience: string | null
           id: number
           industry: string | null
+          location: string | null
           name: string
+          nationality: string | null
           phone: string | null
           position: string | null
           status: string | null
@@ -27,6 +31,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string | null
+          birthdate?: string | null
           company?: string | null
           created_at?: string
           department?: string | null
@@ -35,7 +41,9 @@ export type Database = {
           experience?: string | null
           id?: number
           industry?: string | null
+          location?: string | null
           name: string
+          nationality?: string | null
           phone?: string | null
           position?: string | null
           status?: string | null
@@ -43,6 +51,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string | null
+          birthdate?: string | null
           company?: string | null
           created_at?: string
           department?: string | null
@@ -51,7 +61,9 @@ export type Database = {
           experience?: string | null
           id?: number
           industry?: string | null
+          location?: string | null
           name?: string
+          nationality?: string | null
           phone?: string | null
           position?: string | null
           status?: string | null

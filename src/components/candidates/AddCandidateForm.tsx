@@ -29,7 +29,6 @@ export function AddCandidateForm() {
   const navigate = useNavigate();
 
   const handleResumeAnalyzed = (data: any) => {
-    // Update form fields with parsed data
     if (data.personalInfo) {
       setName(data.personalInfo.name || "");
       setEmail(data.personalInfo.email || "");
@@ -64,25 +63,23 @@ export function AddCandidateForm() {
     try {
       const { data, error } = await supabase
         .from("candidates")
-        .insert([
-          {
-            name,
-            email,
-            phone,
-            position,
-            birthdate,
-            address,
-            nationality,
-            location,
-            company,
-            department,
-            industry,
-            experience,
-            education,
-            university,
-            status: "new",
-          },
-        ])
+        .insert({
+          name,
+          email,
+          phone,
+          position,
+          birthdate: birthdate || null,
+          address,
+          nationality,
+          location,
+          company,
+          department,
+          industry,
+          experience,
+          education,
+          university,
+          status: "new",
+        })
         .select();
 
       if (error) throw error;
