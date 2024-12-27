@@ -30,10 +30,16 @@ export interface Candidate {
   name: string
   email: string
   phone: string | null
-  position: string
+  position: string | null
   status: 'new' | 'screening' | 'interview' | 'offer' | 'hired'
   created_at: string
   updated_at: string
+  company: string | null
+  department: string | null
+  industry: string | null
+  experience: string | null
+  education: string | null
+  university: string | null
 }
 
 export interface WorkExperience {

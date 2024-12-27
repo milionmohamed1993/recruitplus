@@ -11,33 +11,51 @@ export type Database = {
     Tables: {
       candidates: {
         Row: {
+          company: string | null
           created_at: string
+          department: string | null
+          education: string | null
           email: string
+          experience: string | null
           id: number
+          industry: string | null
           name: string
           phone: string | null
           position: string | null
           status: string | null
+          university: string | null
           updated_at: string
         }
         Insert: {
+          company?: string | null
           created_at?: string
+          department?: string | null
+          education?: string | null
           email: string
+          experience?: string | null
           id?: number
+          industry?: string | null
           name: string
           phone?: string | null
           position?: string | null
           status?: string | null
+          university?: string | null
           updated_at?: string
         }
         Update: {
+          company?: string | null
           created_at?: string
+          department?: string | null
+          education?: string | null
           email?: string
+          experience?: string | null
           id?: number
+          industry?: string | null
           name?: string
           phone?: string | null
           position?: string | null
           status?: string | null
+          university?: string | null
           updated_at?: string
         }
         Relationships: []
