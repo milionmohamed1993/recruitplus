@@ -13,7 +13,11 @@ export default function AddCandidate() {
             Fügen Sie einen neuen Kandidaten hinzu und analysieren Sie seinen Lebenslauf
           </p>
         </div>
-        <Button type="submit" form="candidate-form" className="flex items-center gap-2">
+        <Button 
+          type="submit" 
+          form="candidate-form" 
+          className="flex items-center gap-2 bg-primary text-white hover:bg-primary/90"
+        >
           <UserPlus className="h-4 w-4" />
           Kandidat erstellen
         </Button>

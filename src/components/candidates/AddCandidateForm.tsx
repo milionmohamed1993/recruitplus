@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { PersonalInfoFields } from "./PersonalInfoFields";
 import { ProfessionalInfoFields } from "./ProfessionalInfoFields";
 import { ResumeUpload } from "./ResumeUpload";
-import { Save } from "lucide-react";
 
 export function AddCandidateForm() {
   // Personal Information
@@ -106,9 +104,9 @@ export function AddCandidateForm() {
 
   return (
     <form id="candidate-form" onSubmit={handleSubmit} className="space-y-8">
-      <div className="space-y-6">
+      <div className="space-y-6 bg-white rounded-lg shadow p-6">
         <div>
-          <h3 className="text-lg font-medium mb-4">Persönliche Informationen</h3>
+          <h3 className="text-lg font-medium mb-4 text-primary">Persönliche Informationen</h3>
           <PersonalInfoFields
             name={name}
             setName={setName}
@@ -128,7 +126,7 @@ export function AddCandidateForm() {
         </div>
 
         <div>
-          <h3 className="text-lg font-medium mb-4">Berufliche Informationen</h3>
+          <h3 className="text-lg font-medium mb-4 text-primary">Berufliche Informationen</h3>
           <ProfessionalInfoFields
             position={position}
             setPosition={setPosition}
@@ -148,7 +146,7 @@ export function AddCandidateForm() {
         </div>
 
         <div>
-          <h3 className="text-lg font-medium mb-4">Lebenslauf (Optional)</h3>
+          <h3 className="text-lg font-medium mb-4 text-primary">Lebenslauf (Optional)</h3>
           <ResumeUpload onResumeAnalyzed={handleResumeAnalyzed} />
         </div>
       </div>
