@@ -6,6 +6,14 @@ import { parseResume } from "@/utils/resumeParser";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import * as pdfjsLib from 'pdfjs-dist';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -21,6 +29,8 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
   const [resume, setResume] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [progressStatus, setProgressStatus] = useState("");
 
   const extractTextFromPDF = async (arrayBuffer: ArrayBuffer): Promise<string> => {
     try {
@@ -52,6 +62,10 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
     if (selectedFile) {
       setFile(selectedFile);
       try {
+        setIsAnalyzing(true);
+        setProgress(10);
+        setProgressStatus("Datei wird hochgeladen...");
+
         console.log('Starting file processing...');
         const fileName = `${Date.now()}_${selectedFile.name}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -63,6 +77,8 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
           throw new Error('Failed to upload file to storage');
         }
 
+        setProgress(30);
+        setProgressStatus("Datei wird verarbeitet...");
         console.log("File uploaded successfully:", uploadData);
 
         const { data: { publicUrl } } = supabase.storage
@@ -73,6 +89,9 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
 
         const response = await fetch(publicUrl);
         const arrayBuffer = await response.arrayBuffer();
+
+        setProgress(50);
+        setProgressStatus("Text wird extrahiert...");
 
         let extractedText: string;
         if (selectedFile.type === 'application/pdf') {
@@ -85,6 +104,8 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
         setResume(extractedText);
         console.log('Text extracted:', extractedText.substring(0, 100) + '...');
         
+        setProgress(70);
+        setProgressStatus("Lebenslauf wird analysiert...");
         await analyzeResume(extractedText);
       } catch (error: any) {
         console.error("Error reading file:", error);
@@ -93,6 +114,10 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
           description: error.message || "Die Datei konnte nicht gelesen werden. Bitte versuchen Sie es erneut.",
           variant: "destructive",
         });
+      } finally {
+        setIsAnalyzing(false);
+        setProgress(0);
+        setProgressStatus("");
       }
     }
   };
@@ -109,7 +134,6 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       return;
     }
 
-    setIsAnalyzing(true);
     try {
       console.log('Starting resume analysis...');
       const { data: { OPENAI_API_KEY } } = await supabase
@@ -126,11 +150,16 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
         return;
       }
 
+      setProgress(85);
+      setProgressStatus("KI-Analyse wird durchgeführt...");
       const parsedData = await parseResume(file, textToAnalyze, OPENAI_API_KEY);
+      
       if (parsedData) {
         console.log('Resume parsed successfully, raw data:', parsedData);
         const jsonData = JSON.parse(parsedData);
         console.log('Parsed JSON data:', jsonData);
+        setProgress(100);
+        setProgressStatus("Analyse abgeschlossen!");
         onResumeAnalyzed(jsonData);
         toast({
           title: "Analyse erfolgreich",
@@ -144,13 +173,25 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
         description: error.message || "Der Lebenslauf konnte nicht analysiert werden. Bitte versuchen Sie es erneut.",
         variant: "destructive",
       });
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
   return (
     <div className="space-y-4">
+      <Dialog open={isAnalyzing} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Lebenslauf wird verarbeitet</DialogTitle>
+            <DialogDescription>
+              {progressStatus}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-6">
+            <Progress value={progress} className="w-full" />
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex items-center gap-4">
         <Button
           type="button"
