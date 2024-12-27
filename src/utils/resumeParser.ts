@@ -11,7 +11,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
       throw new Error('Invalid API key format');
     }
 
-    console.log('Starting resume analysis with file:', file.name);
+    console.log('Starting resume analysis with text length:', text.length);
 
     const systemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
     Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie strukturiert:
@@ -67,7 +67,7 @@ export async function parseResume(file: File, text: string, apiKey: string) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4-turbo-preview",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -89,7 +89,12 @@ export async function parseResume(file: File, text: string, apiKey: string) {
     }
 
     const data = await response.json();
-    console.log('OpenAI Response:', data);
+    console.log('OpenAI Response received');
+
+    if (!data.choices?.[0]?.message?.content) {
+      console.error('Unexpected OpenAI response format:', data);
+      throw new Error('Unexpected response format from OpenAI');
+    }
 
     try {
       const parsedContent = JSON.parse(data.choices[0].message.content);
