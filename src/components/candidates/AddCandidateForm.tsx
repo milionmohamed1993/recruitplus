@@ -1,20 +1,36 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Upload } from "lucide-react";
+import { PersonalInfoFields } from "./PersonalInfoFields";
+import { ProfessionalInfoFields } from "./ProfessionalInfoFields";
 
 export function AddCandidateForm() {
   const [resume, setResume] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  
+  // Personal Information
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+  const [address, setAddress] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [location, setLocation] = useState("");
+
+  // Professional Information
   const [position, setPosition] = useState("");
+  const [company, setCompany] = useState("");
+  const [department, setDepartment] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [experience, setExperience] = useState("");
+  const [education, setEducation] = useState("");
+  const [university, setUniversity] = useState("");
+
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -98,6 +114,16 @@ export function AddCandidateForm() {
             email,
             phone,
             position,
+            birthdate,
+            address,
+            nationality,
+            location,
+            company,
+            department,
+            industry,
+            experience,
+            education,
+            university,
             status: "new",
           },
         ]);
@@ -119,48 +145,50 @@ export function AddCandidateForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-4">
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium mb-2">Name</label>
-          <Input
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Max Mustermann"
+          <h3 className="text-lg font-medium mb-4">Persönliche Informationen</h3>
+          <PersonalInfoFields
+            name={name}
+            setName={setName}
+            email={email}
+            setEmail={setEmail}
+            phone={phone}
+            setPhone={setPhone}
+            birthdate={birthdate}
+            setBirthdate={setBirthdate}
+            address={address}
+            setAddress={setAddress}
+            nationality={nationality}
+            setNationality={setNationality}
+            location={location}
+            setLocation={setLocation}
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium mb-2">E-Mail</label>
-          <Input
-            required
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="max@beispiel.de"
+          <h3 className="text-lg font-medium mb-4">Berufliche Informationen</h3>
+          <ProfessionalInfoFields
+            position={position}
+            setPosition={setPosition}
+            company={company}
+            setCompany={setCompany}
+            department={department}
+            setDepartment={setDepartment}
+            industry={industry}
+            setIndustry={setIndustry}
+            experience={experience}
+            setExperience={setExperience}
+            education={education}
+            setEducation={setEducation}
+            university={university}
+            setUniversity={setUniversity}
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium mb-2">Telefon</label>
-          <Input
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+49 123 456789"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Position</label>
-          <Input
-            required
-            value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            placeholder="Software Entwickler"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Lebenslauf (Optional)
-          </label>
+          <h3 className="text-lg font-medium mb-4">Lebenslauf (Optional)</h3>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <Button
@@ -193,6 +221,7 @@ export function AddCandidateForm() {
             />
           </div>
         </div>
+
         {resume && (
           <Button
             type="button"
@@ -203,6 +232,7 @@ export function AddCandidateForm() {
           </Button>
         )}
       </div>
+
       <Button type="submit" className="w-full">
         Kandidat hinzufügen
       </Button>
