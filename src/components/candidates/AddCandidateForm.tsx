@@ -33,7 +33,17 @@ export function AddCandidateForm() {
       setName(data.personalInfo.name || "");
       setEmail(data.personalInfo.email || "");
       setPhone(data.personalInfo.phone || "");
-      setBirthdate(data.personalInfo.birthdate || "");
+      // If we get a German date format, we need to parse and format it
+      if (data.personalInfo.birthdate) {
+        try {
+          const date = new Date(data.personalInfo.birthdate);
+          if (!isNaN(date.getTime())) {
+            setBirthdate(date.toISOString().split('T')[0]);
+          }
+        } catch (e) {
+          console.log("Could not parse birthdate:", e);
+        }
+      }
       setAddress(data.personalInfo.address || "");
       setNationality(data.personalInfo.nationality || "");
       setLocation(data.personalInfo.location || "");
@@ -61,6 +71,9 @@ export function AddCandidateForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Format birthdate to ISO format if it exists
+      const formattedBirthdate = birthdate ? new Date(birthdate).toISOString().split('T')[0] : null;
+
       const { data, error } = await supabase
         .from("candidates")
         .insert({
@@ -68,7 +81,7 @@ export function AddCandidateForm() {
           email,
           phone,
           position,
-          birthdate: birthdate || null,
+          birthdate: formattedBirthdate,
           address,
           nationality,
           location,
