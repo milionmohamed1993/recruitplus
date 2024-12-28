@@ -76,7 +76,7 @@ export function CompaniesList() {
                 </div>
               </TableCell>
               <TableCell>
-                <Badge variant={company.status === 'active' ? 'success' : 'secondary'}>
+                <Badge variant={company.status === 'active' ? 'default' : 'secondary'}>
                   {company.status === 'active' ? 'Aktiv' : 'Inaktiv'}
                 </Badge>
               </TableCell>
