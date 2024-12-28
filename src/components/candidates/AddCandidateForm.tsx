@@ -83,32 +83,10 @@ export function AddCandidateForm() {
     });
   };
 
-  const handleReferenceFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReferenceFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length > 0) {
       setReferenceFiles(prevFiles => [...prevFiles, ...selectedFiles]);
-      
-      // Process the first file for analysis
-      const file = selectedFiles[0];
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', 'reference');
-
-        const { data, error } = await supabase.functions.invoke('analyze-document', {
-          body: formData,
-        });
-
-        if (error) throw error;
-        setWorkReferenceEvaluation(data.evaluation);
-      } catch (error) {
-        console.error('Error analyzing reference:', error);
-        toast({
-          title: "Fehler",
-          description: "Das Arbeitszeugnis konnte nicht analysiert werden.",
-          variant: "destructive",
-        });
-      }
     }
   };
 

@@ -5,6 +5,8 @@ import { Upload, X, FileSearch } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
+import { processResumeFile } from "@/utils/fileProcessor";
+import { analyzeResumeWithGPT } from "@/utils/openai";
 
 interface WorkReferenceFieldsProps {
   workReference: string;
@@ -40,31 +42,56 @@ export function WorkReferenceFields({
 
       // First analyze uploaded files
       for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', 'reference');
+        try {
+          const extractedText = await processResumeFile(file);
+          
+          const result = await analyzeResumeWithGPT(`
+            Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung:
+            
+            ${extractedText}
+          `);
 
-        const { data, error } = await supabase.functions.invoke('analyze-document', {
-          body: formData,
-        });
-
-        if (error) throw error;
-        combinedEvaluation += `\n${file.name}: ${data.evaluation}\n`;
+          try {
+            const parsedResult = JSON.parse(result);
+            combinedEvaluation += `\n${file.name}:\n${parsedResult.evaluation}\n`;
+          } catch (parseError) {
+            console.error('Error parsing result:', parseError);
+            combinedEvaluation += `\n${file.name}: ${result}\n`;
+          }
+        } catch (fileError) {
+          console.error(`Error processing file ${file.name}:`, fileError);
+          toast({
+            title: `Fehler bei ${file.name}`,
+            description: "Die Datei konnte nicht analysiert werden.",
+            variant: "destructive",
+          });
+        }
       }
 
       // Then analyze pasted text if present
       if (workReference) {
-        const formData = new FormData();
-        const textFile = new File([workReference], "reference.txt", { type: "text/plain" });
-        formData.append('file', textFile);
-        formData.append('type', 'reference');
+        try {
+          const result = await analyzeResumeWithGPT(`
+            Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung:
+            
+            ${workReference}
+          `);
 
-        const { data, error } = await supabase.functions.invoke('analyze-document', {
-          body: formData,
-        });
-
-        if (error) throw error;
-        combinedEvaluation += `\nEingefügter Text: ${data.evaluation}\n`;
+          try {
+            const parsedResult = JSON.parse(result);
+            combinedEvaluation += `\nEingefügter Text:\n${parsedResult.evaluation}\n`;
+          } catch (parseError) {
+            console.error('Error parsing result:', parseError);
+            combinedEvaluation += `\nEingefügter Text: ${result}\n`;
+          }
+        } catch (textError) {
+          console.error('Error analyzing pasted text:', textError);
+          toast({
+            title: "Fehler",
+            description: "Der eingegebene Text konnte nicht analysiert werden.",
+            variant: "destructive",
+          });
+        }
       }
 
       setWorkReferenceEvaluation(combinedEvaluation.trim());
@@ -73,7 +100,7 @@ export function WorkReferenceFields({
         description: "Die Arbeitszeugnisse wurden erfolgreich analysiert.",
       });
     } catch (error) {
-      console.error('Error analyzing work references:', error);
+      console.error('Error in analyzeWorkReferences:', error);
       toast({
         title: "Fehler",
         description: "Bei der Analyse der Arbeitszeugnisse ist ein Fehler aufgetreten.",
