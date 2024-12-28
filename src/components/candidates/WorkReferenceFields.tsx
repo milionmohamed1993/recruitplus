@@ -46,14 +46,27 @@ export function WorkReferenceFields({
           const extractedText = await processResumeFile(file);
           
           const result = await analyzeResumeWithGPT(`
-            Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung:
+            Du bist ein Experte im Analysieren von deutschen Arbeitszeugnissen.
+            Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung.
+            Berücksichtige dabei die typische "Geheimsprache" in deutschen Arbeitszeugnissen.
             
+            Gib deine Analyse in diesem exakten JSON-Format zurück:
+            {
+              "evaluation": "Deine detaillierte Einschätzung des Arbeitszeugnisses in 2-3 Sätzen",
+              "rating": "Note von 1-6 (1 ist die beste Bewertung)",
+              "keywords": ["Schlüsselwörter", "aus", "dem", "Zeugnis"]
+            }
+            
+            Hier ist das Arbeitszeugnis:
             ${extractedText}
           `);
 
           try {
             const parsedResult = JSON.parse(result);
-            combinedEvaluation += `\n${file.name}:\n${parsedResult.evaluation}\n`;
+            combinedEvaluation += `\n${file.name}:\n`;
+            combinedEvaluation += `Bewertung: ${parsedResult.rating}/6\n`;
+            combinedEvaluation += `Analyse: ${parsedResult.evaluation}\n`;
+            combinedEvaluation += `Schlüsselwörter: ${parsedResult.keywords.join(", ")}\n`;
           } catch (parseError) {
             console.error('Error parsing result:', parseError);
             combinedEvaluation += `\n${file.name}: ${result}\n`;
@@ -72,14 +85,27 @@ export function WorkReferenceFields({
       if (workReference) {
         try {
           const result = await analyzeResumeWithGPT(`
-            Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung:
+            Du bist ein Experte im Analysieren von deutschen Arbeitszeugnissen.
+            Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung.
+            Berücksichtige dabei die typische "Geheimsprache" in deutschen Arbeitszeugnissen.
             
+            Gib deine Analyse in diesem exakten JSON-Format zurück:
+            {
+              "evaluation": "Deine detaillierte Einschätzung des Arbeitszeugnisses in 2-3 Sätzen",
+              "rating": "Note von 1-6 (1 ist die beste Bewertung)",
+              "keywords": ["Schlüsselwörter", "aus", "dem", "Zeugnis"]
+            }
+            
+            Hier ist das Arbeitszeugnis:
             ${workReference}
           `);
 
           try {
             const parsedResult = JSON.parse(result);
-            combinedEvaluation += `\nEingefügter Text:\n${parsedResult.evaluation}\n`;
+            combinedEvaluation += `\nEingefügter Text:\n`;
+            combinedEvaluation += `Bewertung: ${parsedResult.rating}/6\n`;
+            combinedEvaluation += `Analyse: ${parsedResult.evaluation}\n`;
+            combinedEvaluation += `Schlüsselwörter: ${parsedResult.keywords.join(", ")}\n`;
           } catch (parseError) {
             console.error('Error parsing result:', parseError);
             combinedEvaluation += `\nEingefügter Text: ${result}\n`;
