@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, X, FileSearch } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/lib/supabase";
 import { processResumeFile } from "@/utils/fileProcessor";
 import { analyzeResumeWithGPT } from "@/utils/openai";
@@ -27,6 +29,9 @@ export function WorkReferenceFields({
   files,
   onRemoveFile,
 }: WorkReferenceFieldsProps) {
+  const [analyzing, setAnalyzing] = useState(false);
+  const [progress, setProgress] = useState(0);
+
   const analyzeWorkReferences = async () => {
     if (files.length === 0 && !workReference) {
       toast({
@@ -37,29 +42,22 @@ export function WorkReferenceFields({
       return;
     }
 
+    setAnalyzing(true);
+    setProgress(0);
+
     try {
       let combinedEvaluation = "";
+      const totalSteps = files.length + (workReference ? 1 : 0);
+      let currentStep = 0;
 
       // First analyze uploaded files
       for (const file of files) {
         try {
+          setProgress((currentStep / totalSteps) * 100);
           const extractedText = await processResumeFile(file);
           
-          const result = await analyzeResumeWithGPT(`
-            Du bist ein Experte im Analysieren von deutschen Arbeitszeugnissen.
-            Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung.
-            Berücksichtige dabei die typische "Geheimsprache" in deutschen Arbeitszeugnissen.
-            
-            Gib deine Analyse in diesem exakten JSON-Format zurück:
-            {
-              "evaluation": "Deine detaillierte Einschätzung des Arbeitszeugnisses in 2-3 Sätzen",
-              "rating": "Note von 1-6 (1 ist die beste Bewertung)",
-              "keywords": ["Schlüsselwörter", "aus", "dem", "Zeugnis"]
-            }
-            
-            Hier ist das Arbeitszeugnis:
-            ${extractedText}
-          `);
+          const result = await analyzeResumeWithGPT(extractedText);
+          currentStep++;
 
           try {
             const parsedResult = JSON.parse(result);
@@ -67,6 +65,18 @@ export function WorkReferenceFields({
             combinedEvaluation += `Bewertung: ${parsedResult.rating}/6\n`;
             combinedEvaluation += `Analyse: ${parsedResult.evaluation}\n`;
             combinedEvaluation += `Schlüsselwörter: ${parsedResult.keywords.join(", ")}\n`;
+            if (parsedResult.strengths) {
+              combinedEvaluation += `Stärken: ${parsedResult.strengths.join(", ")}\n`;
+            }
+            if (parsedResult.developmentAreas) {
+              combinedEvaluation += `Entwicklungspotenzial: ${parsedResult.developmentAreas.join(", ")}\n`;
+            }
+            if (parsedResult.hiddenMessages) {
+              combinedEvaluation += `Versteckte Botschaften: ${parsedResult.hiddenMessages.join(", ")}\n`;
+            }
+            if (parsedResult.overallImpression) {
+              combinedEvaluation += `Gesamteindruck: ${parsedResult.overallImpression}\n`;
+            }
           } catch (parseError) {
             console.error('Error parsing result:', parseError);
             combinedEvaluation += `\n${file.name}: ${result}\n`;
@@ -83,22 +93,10 @@ export function WorkReferenceFields({
 
       // Then analyze pasted text if present
       if (workReference) {
+        setProgress((currentStep / totalSteps) * 100);
         try {
-          const result = await analyzeResumeWithGPT(`
-            Du bist ein Experte im Analysieren von deutschen Arbeitszeugnissen.
-            Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung.
-            Berücksichtige dabei die typische "Geheimsprache" in deutschen Arbeitszeugnissen.
-            
-            Gib deine Analyse in diesem exakten JSON-Format zurück:
-            {
-              "evaluation": "Deine detaillierte Einschätzung des Arbeitszeugnisses in 2-3 Sätzen",
-              "rating": "Note von 1-6 (1 ist die beste Bewertung)",
-              "keywords": ["Schlüsselwörter", "aus", "dem", "Zeugnis"]
-            }
-            
-            Hier ist das Arbeitszeugnis:
-            ${workReference}
-          `);
+          const result = await analyzeResumeWithGPT(workReference);
+          currentStep++;
 
           try {
             const parsedResult = JSON.parse(result);
@@ -106,6 +104,18 @@ export function WorkReferenceFields({
             combinedEvaluation += `Bewertung: ${parsedResult.rating}/6\n`;
             combinedEvaluation += `Analyse: ${parsedResult.evaluation}\n`;
             combinedEvaluation += `Schlüsselwörter: ${parsedResult.keywords.join(", ")}\n`;
+            if (parsedResult.strengths) {
+              combinedEvaluation += `Stärken: ${parsedResult.strengths.join(", ")}\n`;
+            }
+            if (parsedResult.developmentAreas) {
+              combinedEvaluation += `Entwicklungspotenzial: ${parsedResult.developmentAreas.join(", ")}\n`;
+            }
+            if (parsedResult.hiddenMessages) {
+              combinedEvaluation += `Versteckte Botschaften: ${parsedResult.hiddenMessages.join(", ")}\n`;
+            }
+            if (parsedResult.overallImpression) {
+              combinedEvaluation += `Gesamteindruck: ${parsedResult.overallImpression}\n`;
+            }
           } catch (parseError) {
             console.error('Error parsing result:', parseError);
             combinedEvaluation += `\nEingefügter Text: ${result}\n`;
@@ -120,6 +130,7 @@ export function WorkReferenceFields({
         }
       }
 
+      setProgress(100);
       setWorkReferenceEvaluation(combinedEvaluation.trim());
       toast({
         title: "Analyse abgeschlossen",
@@ -132,6 +143,8 @@ export function WorkReferenceFields({
         description: "Bei der Analyse der Arbeitszeugnisse ist ein Fehler aufgetreten.",
         variant: "destructive",
       });
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -199,10 +212,20 @@ export function WorkReferenceFields({
         onClick={analyzeWorkReferences}
         className="w-full md:w-auto"
         variant="secondary"
+        disabled={analyzing}
       >
         <FileSearch className="mr-2 h-4 w-4" />
-        Arbeitszeugnisse analysieren
+        {analyzing ? "Analyse läuft..." : "Arbeitszeugnisse analysieren"}
       </Button>
+
+      {analyzing && (
+        <div className="space-y-2">
+          <div className="text-sm text-muted-foreground">
+            Analyse läuft... {Math.round(progress)}%
+          </div>
+          <Progress value={progress} className="w-full" />
+        </div>
+      )}
 
       {workReferenceEvaluation && (
         <div>
