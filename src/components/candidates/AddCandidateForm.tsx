@@ -14,7 +14,9 @@ export function AddCandidateForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [birthdate, setBirthdate] = useState("");
-  const [address, setAddress] = useState("");
+  const [street, setStreet] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [city, setCity] = useState("");
   const [nationality, setNationality] = useState("");
   const [location, setLocation] = useState("");
 
@@ -51,7 +53,11 @@ export function AddCandidateForm() {
           console.log("Could not parse birthdate:", e);
         }
       }
-      setAddress(data.personalInfo.address || "");
+      if (data.personalInfo.address) {
+        setStreet(data.personalInfo.street || "");
+        setPostalCode(data.personalInfo.postalCode || "");
+        setCity(data.personalInfo.city || "");
+      }
       setNationality(data.personalInfo.nationality || "");
       setLocation(data.personalInfo.location || "");
     }
@@ -98,6 +104,7 @@ export function AddCandidateForm() {
     e.preventDefault();
     try {
       const formattedBirthdate = birthdate ? new Date(birthdate).toISOString().split('T')[0] : null;
+      const formattedAddress = `${street}, ${postalCode} ${city}`.trim();
 
       const { data, error } = await supabase
         .from("candidates")
@@ -107,7 +114,7 @@ export function AddCandidateForm() {
           phone,
           position,
           birthdate: formattedBirthdate,
-          address,
+          address: formattedAddress,
           nationality,
           location,
           company,
@@ -212,8 +219,12 @@ export function AddCandidateForm() {
             setPhone={setPhone}
             birthdate={birthdate}
             setBirthdate={setBirthdate}
-            address={address}
-            setAddress={setAddress}
+            street={street}
+            setStreet={setStreet}
+            postalCode={postalCode}
+            setPostalCode={setPostalCode}
+            city={city}
+            setCity={setCity}
             nationality={nationality}
             setNationality={setNationality}
             location={location}
