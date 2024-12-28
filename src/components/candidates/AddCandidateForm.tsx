@@ -95,14 +95,11 @@ export function AddCandidateForm() {
         formData.append('file', file);
         formData.append('type', 'reference');
 
-        const response = await fetch('/api/analyze-document', {
-          method: 'POST',
+        const { data, error } = await supabase.functions.invoke('analyze-document', {
           body: formData,
         });
 
-        if (!response.ok) throw new Error('Failed to analyze document');
-
-        const data = await response.json();
+        if (error) throw error;
         setWorkReferenceEvaluation(data.evaluation);
       } catch (error) {
         console.error('Error analyzing reference:', error);
