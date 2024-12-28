@@ -82,10 +82,27 @@ export default function Login() {
                   sign_in: {
                     email_label: 'E-Mail',
                     password_label: 'Passwort',
+                    email_input_placeholder: 'Ihre E-Mail-Adresse',
+                    password_input_placeholder: 'Ihr Passwort',
                     button_label: 'Anmelden',
                     loading_button_label: 'Anmeldung läuft ...',
                     social_provider_text: 'Anmelden mit {{provider}}',
                     link_text: "Noch kein Konto? Jetzt registrieren",
+                  },
+                  forgotten_password: {
+                    link_text: 'Passwort vergessen?',
+                    button_label: 'Passwort zurücksetzen',
+                    loading_button_label: 'Sende Anweisungen ...',
+                    confirmation_text: 'Überprüfen Sie Ihre E-Mails auf den Reset-Link',
+                  },
+                  sign_up: {
+                    email_label: 'E-Mail',
+                    password_label: 'Passwort',
+                    email_input_placeholder: 'Ihre E-Mail-Adresse',
+                    password_input_placeholder: 'Ihr Passwort',
+                    button_label: 'Registrieren',
+                    loading_button_label: 'Registrierung läuft ...',
+                    link_text: 'Bereits ein Konto? Jetzt anmelden',
                   },
                 },
               }}
