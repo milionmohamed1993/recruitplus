@@ -5,63 +5,61 @@ import { supabase } from "@/lib/supabase";
 import { PersonalInfoFields } from "./PersonalInfoFields";
 import { ProfessionalInfoFields } from "./ProfessionalInfoFields";
 import { ResumeUpload } from "./ResumeUpload";
-import { CandidateFormData } from "./types/CandidateFormTypes";
-import { handleCandidateSubmission } from "./utils/candidateSubmission";
 
 export function AddCandidateForm() {
-  const [formData, setFormData] = useState<CandidateFormData>({
-    // Personal Information
-    name: "",
-    email: "",
-    phone: "",
-    birthdate: "",
-    address: "",
-    nationality: "",
-    location: "",
-    // Professional Information
-    position: "",
-    company: "",
-    department: "",
-    industry: "",
-    experience: "",
-    education: "",
-    university: "",
-  });
+  // Personal Information
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+  const [address, setAddress] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [location, setLocation] = useState("");
+
+  // Professional Information
+  const [position, setPosition] = useState("");
+  const [company, setCompany] = useState("");
+  const [department, setDepartment] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [experience, setExperience] = useState("");
+  const [education, setEducation] = useState("");
+  const [university, setUniversity] = useState("");
 
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleResumeAnalyzed = (data: any) => {
     if (data.personalInfo) {
-      setFormData(prev => ({
-        ...prev,
-        name: data.personalInfo.name || prev.name,
-        email: data.personalInfo.email || prev.email,
-        phone: data.personalInfo.phone || prev.phone,
-        birthdate: data.personalInfo.birthdate ? formatBirthdate(data.personalInfo.birthdate) : prev.birthdate,
-        address: data.personalInfo.address || prev.address,
-        nationality: data.personalInfo.nationality || prev.nationality,
-        location: data.personalInfo.location || prev.location,
-      }));
+      setName(data.personalInfo.name || "");
+      setEmail(data.personalInfo.email || "");
+      setPhone(data.personalInfo.phone || "");
+      // If we get a German date format, we need to parse and format it
+      if (data.personalInfo.birthdate) {
+        try {
+          const date = new Date(data.personalInfo.birthdate);
+          if (!isNaN(date.getTime())) {
+            setBirthdate(date.toISOString().split('T')[0]);
+          }
+        } catch (e) {
+          console.log("Could not parse birthdate:", e);
+        }
+      }
+      setAddress(data.personalInfo.address || "");
+      setNationality(data.personalInfo.nationality || "");
+      setLocation(data.personalInfo.location || "");
     }
 
     if (data.professionalInfo) {
-      setFormData(prev => ({
-        ...prev,
-        position: data.professionalInfo.position || prev.position,
-        company: data.professionalInfo.company || prev.company,
-        department: data.professionalInfo.department || prev.department,
-        industry: data.professionalInfo.industry || prev.industry,
-        experience: data.professionalInfo.experience || prev.experience,
-      }));
+      setPosition(data.professionalInfo.position || "");
+      setCompany(data.professionalInfo.company || "");
+      setDepartment(data.professionalInfo.department || "");
+      setIndustry(data.professionalInfo.industry || "");
+      setExperience(data.professionalInfo.experience || "");
     }
 
     if (data.education) {
-      setFormData(prev => ({
-        ...prev,
-        education: data.education.degree || prev.education,
-        university: data.education.university || prev.university,
-      }));
+      setEducation(data.education.degree || "");
+      setUniversity(data.education.university || "");
     }
 
     toast({
@@ -70,34 +68,77 @@ export function AddCandidateForm() {
     });
   };
 
-  const formatBirthdate = (date: string) => {
-    try {
-      const parsedDate = new Date(date);
-      if (!isNaN(parsedDate.getTime())) {
-        return parsedDate.toISOString().split('T')[0];
-      }
-      return "";
-    } catch (e) {
-      console.log("Could not parse birthdate:", e);
-      return "";
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const result = await handleCandidateSubmission(formData, document.querySelector<HTMLInputElement>('#resume-upload')?.files);
-      
-      if (result.success) {
-        toast({
-          title: "Kandidat hinzugefügt",
-          description: "Der Kandidat wurde erfolgreich hinzugefügt.",
-        });
-        navigate("/candidates");
-      } else {
-        throw new Error(result.error);
+      // Format birthdate to ISO format if it exists
+      const formattedBirthdate = birthdate ? new Date(birthdate).toISOString().split('T')[0] : null;
+
+      const { data, error } = await supabase
+        .from("candidates")
+        .insert({
+          name,
+          email,
+          phone,
+          position,
+          birthdate: formattedBirthdate,
+          address,
+          nationality,
+          location,
+          company,
+          department,
+          industry,
+          experience,
+          education,
+          university,
+          status: "new",
+        })
+        .select();
+
+      if (error) throw error;
+
+      // After successfully creating the candidate, upload any attachments
+      if (data && data[0]) {
+        const candidateId = data[0].id;
+        const files = document.querySelectorAll<HTMLInputElement>('#resume-upload');
+        const fileList = files[0]?.files;
+        
+        if (fileList && fileList.length > 0) {
+          for (let i = 0; i < fileList.length; i++) {
+            const file = fileList[i];
+            const fileName = `${Date.now()}_${file.name}`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from('attachments')
+              .upload(fileName, file);
+
+            if (uploadError) {
+              console.error('Error uploading file:', uploadError);
+              continue;
+            }
+
+            const { error: attachmentError } = await supabase
+              .from('candidate_attachments')
+              .insert({
+                candidate_id: candidateId,
+                file_name: file.name,
+                file_path: fileName,
+                file_type: file.type,
+              });
+
+            if (attachmentError) {
+              console.error('Error saving attachment record:', attachmentError);
+            }
+          }
+        }
       }
-    } catch (error: any) {
+
+      toast({
+        title: "Kandidat hinzugefügt",
+        description: "Der Kandidat wurde erfolgreich hinzugefügt.",
+      });
+      navigate("/candidates");
+    } catch (error) {
       console.error("Form submission error:", error);
       toast({
         title: "Fehler",
@@ -113,20 +154,45 @@ export function AddCandidateForm() {
         <div>
           <h3 className="text-lg font-medium mb-4 text-primary">Persönliche Informationen</h3>
           <PersonalInfoFields
-            formData={formData}
-            setFormData={setFormData}
+            name={name}
+            setName={setName}
+            email={email}
+            setEmail={setEmail}
+            phone={phone}
+            setPhone={setPhone}
+            birthdate={birthdate}
+            setBirthdate={setBirthdate}
+            address={address}
+            setAddress={setAddress}
+            nationality={nationality}
+            setNationality={setNationality}
+            location={location}
+            setLocation={setLocation}
           />
         </div>
 
         <div>
           <h3 className="text-lg font-medium mb-4 text-primary">Berufliche Informationen</h3>
           <ProfessionalInfoFields
-            formData={formData}
-            setFormData={setFormData}
+            position={position}
+            setPosition={setPosition}
+            company={company}
+            setCompany={setCompany}
+            department={department}
+            setDepartment={setDepartment}
+            industry={industry}
+            setIndustry={setIndustry}
+            experience={experience}
+            setExperience={setExperience}
+            education={education}
+            setEducation={setEducation}
+            university={university}
+            setUniversity={setUniversity}
           />
         </div>
 
-        <div className="hidden">
+        <div>
+          <h3 className="text-lg font-medium mb-4 text-primary">Lebenslauf (Optional)</h3>
           <ResumeUpload onResumeAnalyzed={handleResumeAnalyzed} />
         </div>
       </div>
