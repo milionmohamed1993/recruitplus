@@ -6,7 +6,7 @@ import { PersonalInfoFields } from "./PersonalInfoFields";
 import { ProfessionalInfoFields } from "./ProfessionalInfoFields";
 import { WorkReferenceFields } from "./WorkReferenceFields";
 import { ResumeUpload } from "./ResumeUpload";
-import { Badge } from "@/components/ui/badge";
+import { SkillsInput } from "./SkillsInput";
 
 export function AddCandidateForm() {
   // Personal Information
@@ -30,6 +30,7 @@ export function AddCandidateForm() {
   // Work Reference
   const [workReference, setWorkReference] = useState("");
   const [workReferenceEvaluation, setWorkReferenceEvaluation] = useState("");
+  const [referenceFiles, setReferenceFiles] = useState<File[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
 
   const { toast } = useToast();
@@ -82,6 +83,42 @@ export function AddCandidateForm() {
     });
   };
 
+  const handleReferenceFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length > 0) {
+      setReferenceFiles(prevFiles => [...prevFiles, ...selectedFiles]);
+      
+      // Process the first file for analysis
+      const file = selectedFiles[0];
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'reference');
+
+        const response = await fetch('/api/analyze-document', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error('Failed to analyze document');
+
+        const data = await response.json();
+        setWorkReferenceEvaluation(data.evaluation);
+      } catch (error) {
+        console.error('Error analyzing reference:', error);
+        toast({
+          title: "Fehler",
+          description: "Das Arbeitszeugnis konnte nicht analysiert werden.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleRemoveReferenceFile = (index: number) => {
+    setReferenceFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -115,12 +152,14 @@ export function AddCandidateForm() {
 
       if (data && data[0]) {
         const candidateId = data[0].id;
-        const files = document.querySelectorAll<HTMLInputElement>('#resume-upload');
-        const fileList = files[0]?.files;
         
-        if (fileList && fileList.length > 0) {
-          for (let i = 0; i < fileList.length; i++) {
-            const file = fileList[i];
+        // Upload resume files
+        const resumeFiles = document.querySelectorAll<HTMLInputElement>('#resume-upload');
+        const resumeFileList = resumeFiles[0]?.files;
+        
+        if (resumeFileList) {
+          for (let i = 0; i < resumeFileList.length; i++) {
+            const file = resumeFileList[i];
             const fileName = `${Date.now()}_${file.name}`;
             
             const { error: uploadError } = await supabase.storage
@@ -128,11 +167,11 @@ export function AddCandidateForm() {
               .upload(fileName, file);
 
             if (uploadError) {
-              console.error('Error uploading file:', uploadError);
+              console.error('Error uploading resume:', uploadError);
               continue;
             }
 
-            const { error: attachmentError } = await supabase
+            await supabase
               .from('candidate_attachments')
               .insert({
                 candidate_id: candidateId,
@@ -140,10 +179,31 @@ export function AddCandidateForm() {
                 file_path: fileName,
                 file_type: file.type,
               });
+          }
+        }
 
-            if (attachmentError) {
-              console.error('Error saving attachment record:', attachmentError);
+        // Upload reference files
+        if (referenceFiles) {
+          for (const file of referenceFiles) {
+            const fileName = `${Date.now()}_${file.name}`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from('attachments')
+              .upload(fileName, file);
+
+            if (uploadError) {
+              console.error('Error uploading reference:', uploadError);
+              continue;
             }
+
+            await supabase
+              .from('candidate_attachments')
+              .insert({
+                candidate_id: candidateId,
+                file_name: file.name,
+                file_path: fileName,
+                file_type: file.type,
+              });
           }
         }
       }
@@ -207,27 +267,22 @@ export function AddCandidateForm() {
         </div>
 
         <div>
-          <h3 className="text-lg font-medium mb-4 text-primary">Arbeitszeugnis</h3>
+          <h3 className="text-lg font-medium mb-4 text-primary">Fähigkeiten</h3>
+          <SkillsInput skills={skills} setSkills={setSkills} />
+        </div>
+
+        <div>
+          <h3 className="text-lg font-medium mb-4 text-primary">Arbeitszeugnis & Zertifikate</h3>
           <WorkReferenceFields
             workReference={workReference}
             setWorkReference={setWorkReference}
             workReferenceEvaluation={workReferenceEvaluation}
             setWorkReferenceEvaluation={setWorkReferenceEvaluation}
+            onFileSelect={handleReferenceFileSelect}
+            files={referenceFiles}
+            onRemoveFile={handleRemoveReferenceFile}
           />
         </div>
-
-        {skills.length > 0 && (
-          <div>
-            <h3 className="text-lg font-medium mb-4 text-primary">Skills</h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill, index) => (
-                <Badge key={index} variant="secondary">
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
 
         <div>
           <h3 className="text-lg font-medium mb-4 text-primary">Lebenslauf (Optional)</h3>
