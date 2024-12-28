@@ -4,10 +4,9 @@ interface MetricCardProps {
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  description?: string;
 }
 
-export function MetricCard({ title, value, icon, description }: MetricCardProps) {
+export function MetricCard({ title, value, icon }: MetricCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -16,9 +15,6 @@ export function MetricCard({ title, value, icon, description }: MetricCardProps)
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
-        )}
       </CardContent>
     </Card>
   );

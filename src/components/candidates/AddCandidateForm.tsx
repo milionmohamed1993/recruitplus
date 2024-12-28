@@ -33,17 +33,7 @@ export function AddCandidateForm() {
       setName(data.personalInfo.name || "");
       setEmail(data.personalInfo.email || "");
       setPhone(data.personalInfo.phone || "");
-      // If we get a German date format, we need to parse and format it
-      if (data.personalInfo.birthdate) {
-        try {
-          const date = new Date(data.personalInfo.birthdate);
-          if (!isNaN(date.getTime())) {
-            setBirthdate(date.toISOString().split('T')[0]);
-          }
-        } catch (e) {
-          console.log("Could not parse birthdate:", e);
-        }
-      }
+      setBirthdate(data.personalInfo.birthdate || "");
       setAddress(data.personalInfo.address || "");
       setNationality(data.personalInfo.nationality || "");
       setLocation(data.personalInfo.location || "");
@@ -71,9 +61,6 @@ export function AddCandidateForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Format birthdate to ISO format if it exists
-      const formattedBirthdate = birthdate ? new Date(birthdate).toISOString().split('T')[0] : null;
-
       const { data, error } = await supabase
         .from("candidates")
         .insert({
@@ -81,7 +68,7 @@ export function AddCandidateForm() {
           email,
           phone,
           position,
-          birthdate: formattedBirthdate,
+          birthdate: birthdate || null,
           address,
           nationality,
           location,
@@ -96,42 +83,6 @@ export function AddCandidateForm() {
         .select();
 
       if (error) throw error;
-
-      // After successfully creating the candidate, upload any attachments
-      if (data && data[0]) {
-        const candidateId = data[0].id;
-        const files = document.querySelectorAll<HTMLInputElement>('#resume-upload');
-        const fileList = files[0]?.files;
-        
-        if (fileList && fileList.length > 0) {
-          for (let i = 0; i < fileList.length; i++) {
-            const file = fileList[i];
-            const fileName = `${Date.now()}_${file.name}`;
-            
-            const { error: uploadError } = await supabase.storage
-              .from('attachments')
-              .upload(fileName, file);
-
-            if (uploadError) {
-              console.error('Error uploading file:', uploadError);
-              continue;
-            }
-
-            const { error: attachmentError } = await supabase
-              .from('candidate_attachments')
-              .insert({
-                candidate_id: candidateId,
-                file_name: file.name,
-                file_path: fileName,
-                file_type: file.type,
-              });
-
-            if (attachmentError) {
-              console.error('Error saving attachment record:', attachmentError);
-            }
-          }
-        }
-      }
 
       toast({
         title: "Kandidat hinzugefügt",

@@ -39,7 +39,6 @@ export interface Candidate {
   address: string | null;
   nationality: string | null;
   location: string | null;
-  source: string | null;
 }
 
 export interface Job {

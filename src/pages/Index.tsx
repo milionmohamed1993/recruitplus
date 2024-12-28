@@ -1,48 +1,22 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
-import { RecruitmentFunnel } from "@/components/dashboard/RecruitmentFunnel";
-import { RecentActivities } from "@/components/dashboard/RecentActivities";
-import { UpcomingInterviews } from "@/components/dashboard/UpcomingInterviews";
-import { AdvancedMetrics } from "@/components/dashboard/AdvancedMetrics";
-import { BriefcaseIcon, Users, FileText, Clock, Brain, Target, Zap } from "lucide-react";
+import { BriefcaseIcon, Users, FileText, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 export default function Index() {
+  // Mock data - in a real app, this would come from your backend
   const metrics = [
-    { 
-      title: "Aktive Stellen", 
-      value: "12", 
-      icon: <BriefcaseIcon className="h-4 w-4 text-blue-600" />,
-      description: "4 neue diesen Monat"
-    },
-    { 
-      title: "Kandidaten Gesamt", 
-      value: "248", 
-      icon: <Users className="h-4 w-4 text-green-600" />,
-      description: "+18% zum Vormonat"
-    },
-    { 
-      title: "KI-Analysen", 
-      value: "186", 
-      icon: <Brain className="h-4 w-4 text-purple-600" />,
-      description: "94% Erfolgsrate"
-    },
-    { 
-      title: "Zeit bis Einstellung", 
-      value: "18T", 
-      icon: <Clock className="h-4 w-4 text-orange-600" />,
-      description: "-3 Tage zum Durchschnitt"
-    }
+    { title: "Active Jobs", value: "12", icon: <BriefcaseIcon className="h-4 w-4 text-muted-foreground" /> },
+    { title: "Total Candidates", value: "248", icon: <Users className="h-4 w-4 text-muted-foreground" /> },
+    { title: "Applications", value: "86", icon: <FileText className="h-4 w-4 text-muted-foreground" /> },
+    { title: "Time to Hire (avg)", value: "18d", icon: <Clock className="h-4 w-4 text-muted-foreground" /> },
   ];
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold">Willkommen zurück</h1>
-          <p className="text-muted-foreground">
-            Hier ist ein Überblick über Ihre Recruiting-Pipeline und aktuelle Aktivitäten.
-          </p>
-        </div>
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
         
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {metrics.map((metric) => (
@@ -51,17 +25,55 @@ export default function Index() {
               title={metric.title}
               value={metric.value}
               icon={metric.icon}
-              description={metric.description}
             />
           ))}
         </div>
 
-        <AdvancedMetrics />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Jobs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">Senior Frontend Developer</div>
+                    <div className="text-sm text-muted-foreground">4d ago</div>
+                  </div>
+                  <Progress value={65} />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">Product Manager</div>
+                    <div className="text-sm text-muted-foreground">1w ago</div>
+                  </div>
+                  <Progress value={35} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <RecruitmentFunnel />
-          <RecentActivities />
-          <UpcomingInterviews />
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Applications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">John Doe</div>
+                      <div className="text-sm text-muted-foreground">Applied for Senior Frontend Developer</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </DashboardLayout>

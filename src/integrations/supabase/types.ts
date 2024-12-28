@@ -51,91 +51,6 @@ export type Database = {
           },
         ]
       }
-      candidate_attachments: {
-        Row: {
-          analysis: string | null
-          candidate_id: number | null
-          created_at: string | null
-          file_name: string
-          file_path: string
-          file_type: string | null
-          id: number
-        }
-        Insert: {
-          analysis?: string | null
-          candidate_id?: number | null
-          created_at?: string | null
-          file_name: string
-          file_path: string
-          file_type?: string | null
-          id?: number
-        }
-        Update: {
-          analysis?: string | null
-          candidate_id?: number | null
-          created_at?: string | null
-          file_name?: string
-          file_path?: string
-          file_type?: string | null
-          id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "candidate_attachments_candidate_id_fkey"
-            columns: ["candidate_id"]
-            isOneToOne: false
-            referencedRelation: "candidates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      candidate_work_history: {
-        Row: {
-          candidate_id: number | null
-          company: string
-          created_at: string | null
-          description: string | null
-          end_date: string | null
-          id: number
-          is_current: boolean | null
-          position: string
-          start_date: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          candidate_id?: number | null
-          company: string
-          created_at?: string | null
-          description?: string | null
-          end_date?: string | null
-          id?: number
-          is_current?: boolean | null
-          position: string
-          start_date?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          candidate_id?: number | null
-          company?: string
-          created_at?: string | null
-          description?: string | null
-          end_date?: string | null
-          id?: number
-          is_current?: boolean | null
-          position?: string
-          start_date?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "candidate_work_history_candidate_id_fkey"
-            columns: ["candidate_id"]
-            isOneToOne: false
-            referencedRelation: "candidates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       candidates: {
         Row: {
           address: string | null
@@ -153,7 +68,6 @@ export type Database = {
           nationality: string | null
           phone: string | null
           position: string | null
-          source: string | null
           status: string | null
           university: string | null
           updated_at: string
@@ -174,7 +88,6 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           position?: string | null
-          source?: string | null
           status?: string | null
           university?: string | null
           updated_at?: string
@@ -195,7 +108,6 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           position?: string | null
-          source?: string | null
           status?: string | null
           university?: string | null
           updated_at?: string

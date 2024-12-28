@@ -13,7 +13,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Zeitstrahl-Einträge werden aus den analysierten Lebenslaufdaten gefüllt */}
+          {/* Timeline items will be populated from parsed resume data */}
           <div className="relative pl-4 border-l-2 border-border">
             <div className="absolute w-2 h-2 bg-primary rounded-full -left-[5px] top-2" />
             <div className="font-medium">{candidate.position}</div>
