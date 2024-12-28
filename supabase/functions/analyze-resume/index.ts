@@ -23,6 +23,7 @@ serve(async (req) => {
     Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie exakt wie folgt.
     Wichtig: Entferne alle Kommas aus den Werten und gib nur die angeforderten Felder zurück.
     Extrahiere auch eine Liste von maximal 20 relevanten Skills als Tags.
+    Achte besonders auf technische Skills Software-Skills und Soft-Skills.
 
     {
       "personalInfo": {
@@ -45,7 +46,11 @@ serve(async (req) => {
         "degree": "Höchster Abschluss",
         "university": "Name der Universität"
       },
-      "skills": ["Skill1", "Skill2", "..."] // Maximal 20 relevante Skills
+      "skills": [
+        "Skill1",
+        "Skill2",
+        "..."
+      ]
     }`;
 
     const resumeResponse = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -93,10 +98,16 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `Du bist ein Experte im Analysieren von Arbeitszeugnissen.
-              Gib eine kurze Einschätzung des Arbeitszeugnisses ab und bewerte die Leistung des Mitarbeiters.
+              content: `Du bist ein Experte im Analysieren von deutschen Arbeitszeugnissen.
+              Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung.
               Berücksichtige dabei die typische "Geheimsprache" in deutschen Arbeitszeugnissen.
-              Fasse deine Analyse in 2-3 Sätzen zusammen.`,
+              
+              Gib deine Analyse in diesem exakten JSON-Format zurück:
+              {
+                "evaluation": "Deine detaillierte Einschätzung des Arbeitszeugnisses in 2-3 Sätzen",
+                "rating": "Note von 1-6 (1 ist die beste Bewertung)",
+                "keywords": ["Schlüsselwörter", "aus", "dem", "Zeugnis"]
+              }`,
             },
             {
               role: "user",
