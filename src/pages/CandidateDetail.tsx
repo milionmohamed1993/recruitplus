@@ -8,19 +8,33 @@ import { CandidateAttachments } from "@/components/candidates/CandidateAttachmen
 
 export default function CandidateDetail() {
   const { id } = useParams();
-  const { data: candidate, isLoading } = useCandidate(Number(id));
+  const { data: candidate, isLoading, error } = useCandidate(Number(id));
 
   if (isLoading) {
-    return <div>Lädt Kandidatendetails...</div>;
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+          <div className="text-lg text-muted-foreground">Lädt Kandidatendetails...</div>
+        </div>
+      </DashboardLayout>
+    );
   }
 
-  if (!candidate) {
-    return <div>Kandidat nicht gefunden</div>;
+  if (error || !candidate) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+          <div className="text-lg text-destructive">
+            {error ? "Ein Fehler ist aufgetreten" : "Kandidat nicht gefunden"}
+          </div>
+        </div>
+      </DashboardLayout>
+    );
   }
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
           <CandidateInfo candidate={candidate} />
           <CandidateApplications candidateId={candidate.id} />
