@@ -18,13 +18,14 @@ serve(async (req) => {
     console.log('Analyzing resume text length:', text.length);
     console.log('Work reference provided:', !!workReference);
 
-    // First, analyze the resume
     const resumeSystemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
     Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie exakt wie folgt.
     Wichtig: Entferne alle Kommas aus den Werten und gib nur die angeforderten Felder zurück.
     Extrahiere auch eine Liste von maximal 20 relevanten Skills als Tags.
     Achte besonders auf technische Skills Software-Skills und Soft-Skills.
-
+    
+    WICHTIG: Gib deine Antwort NUR als valides JSON zurück ohne zusätzlichen Text davor oder danach.
+    
     {
       "personalInfo": {
         "name": "Vollständiger Name ohne Titel",
@@ -48,8 +49,7 @@ serve(async (req) => {
       },
       "skills": [
         "Skill1",
-        "Skill2",
-        "..."
+        "Skill2"
       ]
     }`;
 
@@ -82,7 +82,16 @@ serve(async (req) => {
     }
 
     const resumeData = await resumeResponse.json();
-    let parsedContent = JSON.parse(resumeData.choices[0].message.content);
+    console.log('Raw OpenAI response:', resumeData.choices[0].message.content);
+    
+    let parsedContent;
+    try {
+      parsedContent = JSON.parse(resumeData.choices[0].message.content.trim());
+    } catch (parseError) {
+      console.error('Error parsing OpenAI response:', parseError);
+      console.error('Raw content:', resumeData.choices[0].message.content);
+      throw new Error('Failed to parse the resume data structure');
+    }
 
     // If work reference is provided, analyze it
     let workReferenceEvaluation = "";
@@ -102,7 +111,8 @@ serve(async (req) => {
               Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung.
               Berücksichtige dabei die typische "Geheimsprache" in deutschen Arbeitszeugnissen.
               
-              Gib deine Analyse in diesem exakten JSON-Format zurück:
+              WICHTIG: Gib deine Antwort NUR als valides JSON zurück ohne zusätzlichen Text davor oder danach.
+              
               {
                 "evaluation": "Deine detaillierte Einschätzung des Arbeitszeugnisses in 2-3 Sätzen",
                 "rating": "Note von 1-6 (1 ist die beste Bewertung)",
@@ -123,7 +133,14 @@ serve(async (req) => {
         workReferenceEvaluation = "Fehler bei der Analyse des Arbeitszeugnisses";
       } else {
         const workRefData = await workRefResponse.json();
-        workReferenceEvaluation = workRefData.choices[0].message.content;
+        try {
+          const parsedWorkRef = JSON.parse(workRefData.choices[0].message.content.trim());
+          workReferenceEvaluation = JSON.stringify(parsedWorkRef);
+        } catch (parseError) {
+          console.error('Error parsing work reference response:', parseError);
+          console.error('Raw work ref content:', workRefData.choices[0].message.content);
+          workReferenceEvaluation = "Fehler beim Parsen der Arbeitszeugnis-Analyse";
+        }
       }
     }
 
