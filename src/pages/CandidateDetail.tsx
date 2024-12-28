@@ -10,7 +10,7 @@ export default function CandidateDetail() {
   const { id } = useParams();
   const { data: candidate, isLoading, error } = useCandidate(Number(id));
 
-  console.log("Candidate data:", candidate); // Add this line for debugging
+  console.log("Candidate data:", candidate);
 
   if (isLoading) {
     return (
@@ -36,8 +36,8 @@ export default function CandidateDetail() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto max-w-7xl py-6">
-        <div className="grid gap-6 md:grid-cols-2">
+      <div className="container p-6">
+        <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-6">
             <CandidateInfo candidate={candidate} />
             <CandidateTimeline candidate={candidate} />
