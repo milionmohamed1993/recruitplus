@@ -11,6 +11,8 @@ import Pipeline from "./pages/Pipeline";
 import CandidatePipeline from "./pages/CandidatePipeline";
 import AddCandidate from "./pages/AddCandidate";
 import CandidateDetail from "./pages/CandidateDetail";
+import Companies from "./pages/Companies";
+import AddCompany from "./pages/AddCompany";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => (
             <Route path="/candidates/:id" element={<CandidateDetail />} />
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/candidates/:id/pipeline" element={<CandidatePipeline />} />
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/companies/add" element={<AddCompany />} />
           </Routes>
         </BrowserRouter>
       </SidebarProvider>
