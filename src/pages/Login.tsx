@@ -52,7 +52,7 @@ export default function Login() {
                     backgroundColor: '#0066CC',
                     color: 'white',
                     width: '100%',
-                    ':hover': {
+                    hover: {
                       backgroundColor: '#0052A3',
                     },
                   },
@@ -61,14 +61,14 @@ export default function Login() {
                     height: '40px',
                     padding: '8px 12px',
                     borderColor: '#E5F4FF',
-                    ':focus': {
+                    focus: {
                       borderColor: '#0066CC',
                       boxShadow: '0 0 0 2px rgba(0, 102, 204, 0.1)',
                     },
                   },
                   anchor: {
                     color: '#0066CC',
-                    ':hover': {
+                    hover: {
                       color: '#0052A3',
                     },
                   },
