@@ -13,6 +13,7 @@ import AddCandidate from "./pages/AddCandidate";
 import CandidateDetail from "./pages/CandidateDetail";
 import Companies from "./pages/Companies";
 import AddCompany from "./pages/AddCompany";
+import CompanyDetail from "./pages/CompanyDetail";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/candidates/:id/pipeline" element={<CandidatePipeline />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/add" element={<AddCompany />} />
+            <Route path="/companies/:id" element={<CompanyDetail />} />
           </Routes>
         </BrowserRouter>
       </SidebarProvider>
