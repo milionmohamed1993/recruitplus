@@ -14,20 +14,22 @@ interface ResumeUploadProps {
 export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
   const [resume, setResume] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState(0);
   const [progressStatus, setProgressStatus] = useState("");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length > 0) {
+      setFiles(prevFiles => [...prevFiles, ...selectedFiles]);
+      
       try {
         setIsAnalyzing(true);
         setProgress(10);
         setProgressStatus("Datei wird hochgeladen...");
 
-        const extractedText = await processResumeFile(selectedFile);
+        // Process the first file for resume analysis
+        const extractedText = await processResumeFile(selectedFiles[0]);
         setResume(extractedText);
         
         setProgress(70);
@@ -46,6 +48,10 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
         setProgressStatus("");
       }
     }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
   };
 
   const analyzeResume = async (text?: string) => {
@@ -99,7 +105,8 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
 
       <ResumeUploadButton
         onFileSelect={handleFileChange}
-        file={file}
+        files={files}
+        onRemoveFile={removeFile}
       />
 
       <Textarea
