@@ -19,7 +19,28 @@ serve(async (req) => {
     }
 
     const { text } = await req.json();
-    console.log('Analyzing resume text...');
+    console.log('Analyzing resume text length:', text.length);
+
+    const systemPrompt = `You are an expert at analyzing resumes. Extract the following information from this resume and format it as JSON:
+    - Personal Information:
+      - Full Name
+      - Email
+      - Phone Number
+      - Birth Date (if available)
+      - Address (if available)
+      - Nationality (if available)
+      - Location/City
+    
+    - Professional Information:
+      - Current/Last Position
+      - Company
+      - Department
+      - Industry
+      - Years of Experience
+    
+    - Education:
+      - Highest Degree
+      - University/Institution`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -32,52 +53,55 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Du bist ein Experte im Analysieren von Lebensläufen. 
-            Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie als JSON:
-            {
-              "personalInfo": {
-                "name": "",
-                "email": "",
-                "phone": "",
-                "birthdate": "",
-                "address": "",
-                "nationality": "",
-                "location": ""
-              },
-              "professionalInfo": {
-                "position": "",
-                "company": "",
-                "department": "",
-                "industry": "",
-                "experience": ""
-              },
-              "education": {
-                "degree": "",
-                "university": ""
-              }
-            }`
+            content: systemPrompt,
           },
           {
             role: "user",
-            content: text
-          }
+            content: text,
+          },
         ],
         temperature: 0.3,
-        max_tokens: 2000
-      })
+      }),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API Error:', errorText);
+      const errorData = await response.text();
+      console.error('OpenAI API Error:', errorData);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Successfully analyzed resume');
+    console.log('OpenAI response received');
+
+    if (!data.choices?.[0]?.message?.content) {
+      console.error('Unexpected OpenAI response format:', data);
+      throw new Error('Unexpected response format from OpenAI');
+    }
+
+    // Parse the response to ensure it's valid JSON
+    let parsedContent;
+    try {
+      parsedContent = JSON.parse(data.choices[0].message.content);
+      console.log('Successfully parsed resume data');
+    } catch (parseError) {
+      console.error('Error parsing OpenAI response:', parseError);
+      // If parsing fails, try to clean up the response
+      const cleanedContent = data.choices[0].message.content
+        .replace(/```json\n?/, '') // Remove JSON code block markers
+        .replace(/```\n?/, '')     // Remove closing code block marker
+        .trim();                   // Remove any extra whitespace
+      
+      try {
+        parsedContent = JSON.parse(cleanedContent);
+        console.log('Successfully parsed cleaned resume data');
+      } catch (secondParseError) {
+        console.error('Failed to parse cleaned response:', secondParseError);
+        throw new Error('Failed to parse the resume data structure');
+      }
+    }
 
     return new Response(JSON.stringify({
-      result: JSON.parse(data.choices[0].message.content)
+      result: parsedContent
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
