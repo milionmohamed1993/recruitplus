@@ -26,18 +26,18 @@ export default function Login() {
             className="h-24 md:h-32 mb-4"
           />
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-            Welcome to RecruitPlus
+            Willkommen bei RecruitPlus
           </h1>
           <p className="text-sm text-muted-foreground">
-            Sign in to access your recruiting dashboard
+            Melden Sie sich an, um auf Ihr Recruiting-Dashboard zuzugreifen
           </p>
         </div>
         
         <Card className="w-full">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Sign in</CardTitle>
+            <CardTitle className="text-2xl text-center">Anmelden</CardTitle>
             <CardDescription className="text-center">
-              Enter your credentials to access your account
+              Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -80,12 +80,12 @@ export default function Login() {
               localization={{
                 variables: {
                   sign_in: {
-                    email_label: 'Email',
-                    password_label: 'Password',
-                    button_label: 'Sign in',
-                    loading_button_label: 'Signing in ...',
-                    social_provider_text: 'Sign in with {{provider}}',
-                    link_text: "Don't have an account? Sign up",
+                    email_label: 'E-Mail',
+                    password_label: 'Passwort',
+                    button_label: 'Anmelden',
+                    loading_button_label: 'Anmeldung läuft ...',
+                    social_provider_text: 'Anmelden mit {{provider}}',
+                    link_text: "Noch kein Konto? Jetzt registrieren",
                   },
                 },
               }}
