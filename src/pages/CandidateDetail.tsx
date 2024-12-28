@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { CandidateInfo } from "@/components/candidates/CandidateInfo";
 import { CandidateApplications } from "@/components/candidates/CandidateApplications";
 import { CandidateTimeline } from "@/components/candidates/CandidateTimeline";
+import { CandidateAttachments } from "@/components/candidates/CandidateAttachments";
 
 export default function CandidateDetail() {
   const { id } = useParams();
@@ -24,7 +25,10 @@ export default function CandidateDetail() {
           <CandidateInfo candidate={candidate} />
           <CandidateApplications candidateId={candidate.id} />
         </div>
-        <CandidateTimeline candidate={candidate} />
+        <div className="grid gap-6 md:grid-cols-2">
+          <CandidateTimeline candidate={candidate} />
+          <CandidateAttachments candidate={candidate} />
+        </div>
       </div>
     </DashboardLayout>
   );
