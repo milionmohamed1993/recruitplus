@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, GraduationCap } from "lucide-react";
+import { Briefcase, GraduationCap, Star } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Candidate } from "@/types/database.types";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { TimelineEntry } from "./timeline/TimelineEntry";
 import { SkillsSection } from "./timeline/SkillsSection";
+import { Badge } from "../ui/badge";
 
 interface CandidateTimelineProps {
   candidate: Candidate;
@@ -35,6 +36,10 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
     },
   });
 
+  // Parse work reference evaluation if available
+  const workReferenceData = candidate.work_reference_evaluation ? 
+    JSON.parse(candidate.work_reference_evaluation) : null;
+
   return (
     <Card>
       <CardHeader>
@@ -50,7 +55,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                 position: candidate.position,
                 company: candidate.company || "",
                 start_date: new Date().toISOString(),
-                description: "Aktuelle Position",
+                description: `${candidate.department || ''} - ${candidate.industry || ''}`,
               }}
               icon={<Briefcase className="h-4 w-4 text-primary" />}
               isCurrent={true}
@@ -82,6 +87,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                 position: candidate.education,
                 company: candidate.university || "",
                 start_date: new Date().toISOString(),
+                description: "Ausbildung",
               }}
               icon={<GraduationCap className="h-4 w-4 text-muted-foreground" />}
               onEntryClick={(entry) => {
@@ -89,6 +95,42 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                 setDialogOpen(true);
               }}
             />
+          )}
+
+          {/* Work Reference Evaluation */}
+          {workReferenceData && (
+            <div className="relative pl-8 border-l-2 border-muted">
+              <div className="absolute -left-[11px] p-1 bg-background border-2 border-muted rounded-full">
+                <Star className="h-4 w-4 text-yellow-400" />
+              </div>
+              <div className="space-y-4">
+                <div className="font-medium">Arbeitszeugnisse</div>
+                <div className="space-y-4">
+                  {Object.entries(workReferenceData).map(([filename, evaluation]: [string, any]) => (
+                    <div key={filename} className="bg-accent/50 p-4 rounded-lg space-y-2">
+                      <div className="font-medium">{filename}</div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">
+                          Bewertung: {evaluation.rating}/6
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {evaluation.summary}
+                      </div>
+                      {evaluation.keyPhrases && (
+                        <div className="flex flex-wrap gap-2">
+                          {evaluation.keyPhrases.map((phrase: string) => (
+                            <Badge key={phrase} variant="outline">
+                              {phrase}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Skills */}
