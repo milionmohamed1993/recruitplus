@@ -6,43 +6,43 @@ import type { Candidate } from "@/types/database.types";
 export function AdvancedMetrics() {
   const { data: candidates } = useCandidates();
 
-  // Calculate metrics from candidates data
+  // Metriken aus Kandidatendaten berechnen
   const sourceMetrics = candidates?.reduce((acc: Record<string, number>, candidate: Candidate) => {
-    const source = candidate.source || "Direct";
+    const source = candidate.source || "Direkt";
     acc[source] = (acc[source] || 0) + 1;
     return acc;
   }, {});
 
   const metrics = [
     {
-      title: "Source Breakdown",
+      title: "Quellen-Übersicht",
       items: [
         { label: "LinkedIn", value: sourceMetrics?.["LinkedIn"] || 0, icon: <Users className="h-4 w-4 text-blue-600" /> },
-        { label: "Direct", value: sourceMetrics?.["Direct"] || 0, icon: <UserPlus className="h-4 w-4 text-green-600" /> },
-        { label: "Referral", value: sourceMetrics?.["Referral"] || 0, icon: <Building2 className="h-4 w-4 text-purple-600" /> }
+        { label: "Direkt", value: sourceMetrics?.["Direkt"] || 0, icon: <UserPlus className="h-4 w-4 text-green-600" /> },
+        { label: "Empfehlung", value: sourceMetrics?.["Empfehlung"] || 0, icon: <Building2 className="h-4 w-4 text-purple-600" /> }
       ]
     },
     {
-      title: "Education Level",
+      title: "Bildungsniveau",
       items: [
         { label: "Bachelor", value: candidates?.filter(c => c.education?.includes("Bachelor"))?.length || 0, icon: <GraduationCap className="h-4 w-4 text-orange-600" /> },
         { label: "Master", value: candidates?.filter(c => c.education?.includes("Master"))?.length || 0, icon: <GraduationCap className="h-4 w-4 text-red-600" /> },
-        { label: "PhD", value: candidates?.filter(c => c.education?.includes("PhD"))?.length || 0, icon: <GraduationCap className="h-4 w-4 text-yellow-600" /> }
+        { label: "Promotion", value: candidates?.filter(c => c.education?.includes("Promotion"))?.length || 0, icon: <GraduationCap className="h-4 w-4 text-yellow-600" /> }
       ]
     },
     {
-      title: "Location Distribution",
+      title: "Standort-Verteilung",
       items: [
-        { label: "Local", value: candidates?.filter(c => c.location === "local")?.length || 0, icon: <Globe className="h-4 w-4 text-indigo-600" /> },
+        { label: "Vor Ort", value: candidates?.filter(c => c.location === "vor_ort")?.length || 0, icon: <Globe className="h-4 w-4 text-indigo-600" /> },
         { label: "Remote", value: candidates?.filter(c => c.location === "remote")?.length || 0, icon: <Globe className="h-4 w-4 text-pink-600" /> },
         { label: "Hybrid", value: candidates?.filter(c => c.location === "hybrid")?.length || 0, icon: <Globe className="h-4 w-4 text-cyan-600" /> }
       ]
     },
     {
-      title: "Experience Level",
+      title: "Erfahrungsstufe",
       items: [
         { label: "Junior", value: candidates?.filter(c => c.experience?.includes("Junior"))?.length || 0, icon: <Briefcase className="h-4 w-4 text-emerald-600" /> },
-        { label: "Mid", value: candidates?.filter(c => c.experience?.includes("Mid"))?.length || 0, icon: <Briefcase className="h-4 w-4 text-violet-600" /> },
+        { label: "Fortgeschritten", value: candidates?.filter(c => c.experience?.includes("Fortgeschritten"))?.length || 0, icon: <Briefcase className="h-4 w-4 text-violet-600" /> },
         { label: "Senior", value: candidates?.filter(c => c.experience?.includes("Senior"))?.length || 0, icon: <Briefcase className="h-4 w-4 text-amber-600" /> }
       ]
     }

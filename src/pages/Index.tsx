@@ -9,28 +9,28 @@ import { BriefcaseIcon, Users, FileText, Clock, Brain, Target, Zap } from "lucid
 export default function Index() {
   const metrics = [
     { 
-      title: "Active Jobs", 
+      title: "Aktive Stellen", 
       value: "12", 
       icon: <BriefcaseIcon className="h-4 w-4 text-blue-600" />,
-      description: "4 new this month"
+      description: "4 neue diesen Monat"
     },
     { 
-      title: "Total Candidates", 
+      title: "Kandidaten Gesamt", 
       value: "248", 
       icon: <Users className="h-4 w-4 text-green-600" />,
-      description: "+18% from last month"
+      description: "+18% zum Vormonat"
     },
     { 
-      title: "AI Analyses", 
+      title: "KI-Analysen", 
       value: "186", 
       icon: <Brain className="h-4 w-4 text-purple-600" />,
-      description: "94% success rate"
+      description: "94% Erfolgsrate"
     },
     { 
-      title: "Time to Hire", 
-      value: "18d", 
+      title: "Zeit bis Einstellung", 
+      value: "18T", 
       icon: <Clock className="h-4 w-4 text-orange-600" />,
-      description: "-3 days from average"
+      description: "-3 Tage zum Durchschnitt"
     }
   ];
 
@@ -38,9 +38,9 @@ export default function Index() {
     <DashboardLayout>
       <div className="space-y-8">
         <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold">Welcome back</h1>
+          <h1 className="text-3xl font-bold">Willkommen zurück</h1>
           <p className="text-muted-foreground">
-            Here's an overview of your recruitment pipeline and recent activities.
+            Hier ist ein Überblick über Ihre Recruiting-Pipeline und aktuelle Aktivitäten.
           </p>
         </div>
         
