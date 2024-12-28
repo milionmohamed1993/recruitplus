@@ -40,6 +40,9 @@ export interface Candidate {
   nationality: string | null;
   location: string | null;
   source: string | null;
+  work_reference: string | null;
+  work_reference_evaluation: string | null;
+  skills: string[] | null;
 }
 
 export interface Job {
