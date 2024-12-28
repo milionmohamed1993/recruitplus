@@ -153,6 +153,7 @@ export type Database = {
           nationality: string | null
           phone: string | null
           position: string | null
+          source: string | null
           status: string | null
           university: string | null
           updated_at: string
@@ -173,6 +174,7 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           position?: string | null
+          source?: string | null
           status?: string | null
           university?: string | null
           updated_at?: string
@@ -193,6 +195,7 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           position?: string | null
+          source?: string | null
           status?: string | null
           university?: string | null
           updated_at?: string

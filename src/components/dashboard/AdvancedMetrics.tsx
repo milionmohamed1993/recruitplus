@@ -1,12 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserPlus, Building2, GraduationCap, Globe, Briefcase, Target, LineChart } from "lucide-react";
+import { Users, UserPlus, Building2, GraduationCap, Globe, Briefcase } from "lucide-react";
 import { useCandidates } from "@/hooks/useCandidates";
+import type { Candidate } from "@/types/database.types";
 
 export function AdvancedMetrics() {
   const { data: candidates } = useCandidates();
 
   // Calculate metrics from candidates data
-  const sourceMetrics = candidates?.reduce((acc: Record<string, number>, candidate) => {
+  const sourceMetrics = candidates?.reduce((acc: Record<string, number>, candidate: Candidate) => {
     const source = candidate.source || "Direct";
     acc[source] = (acc[source] || 0) + 1;
     return acc;
