@@ -153,10 +153,13 @@ export type Database = {
           nationality: string | null
           phone: string | null
           position: string | null
+          skills: string[] | null
           source: string | null
           status: string | null
           university: string | null
           updated_at: string
+          work_reference: string | null
+          work_reference_evaluation: string | null
         }
         Insert: {
           address?: string | null
@@ -174,10 +177,13 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           position?: string | null
+          skills?: string[] | null
           source?: string | null
           status?: string | null
           university?: string | null
           updated_at?: string
+          work_reference?: string | null
+          work_reference_evaluation?: string | null
         }
         Update: {
           address?: string | null
@@ -195,10 +201,13 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           position?: string | null
+          skills?: string[] | null
           source?: string | null
           status?: string | null
           university?: string | null
           updated_at?: string
+          work_reference?: string | null
+          work_reference_evaluation?: string | null
         }
         Relationships: []
       }
