@@ -21,8 +21,22 @@ serve(async (req) => {
     const resumeSystemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
     Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie exakt wie folgt.
     Wichtig: Entferne alle Kommas aus den Werten und gib nur die angeforderten Felder zurück.
-    Extrahiere auch eine Liste von maximal 20 relevanten Skills als Tags.
-    Achte besonders auf technische Skills Software-Skills und Soft-Skills.
+    
+    Analysiere den Lebenslauf sehr detailliert und erstelle eine umfassende Bewertung des Kandidaten.
+    Berücksichtige dabei:
+    - Fachliche Expertise und spezifische technische Fähigkeiten
+    - Bildungsweg und akademische Leistungen
+    - Berufserfahrung und Verantwortungsbereiche
+    - Soft Skills und Führungskompetenzen
+    - Besondere Erfolge und Projekte
+    - Entwicklungspotenzial
+    
+    Erstelle auch quantitative Metriken (1-10) für:
+    - Technische Expertise
+    - Führungskompetenz
+    - Projekterfahrung
+    - Kommunikationsfähigkeit
+    - Bildungsniveau
     
     WICHTIG: Gib deine Antwort NUR als valides JSON zurück ohne zusätzlichen Text davor oder danach.
     
@@ -45,12 +59,30 @@ serve(async (req) => {
       },
       "education": {
         "degree": "Höchster Abschluss",
-        "university": "Name der Universität"
+        "university": "Name der Universität",
+        "graduationYear": "Abschlussjahr",
+        "academicPerformance": "Beschreibung der akademischen Leistungen",
+        "additionalCertifications": ["Zertifikat1", "Zertifikat2"]
       },
       "skills": [
         "Skill1",
         "Skill2"
-      ]
+      ],
+      "detailedAnalysis": {
+        "technicalExpertise": "Detaillierte Beschreibung der technischen Fähigkeiten und Erfahrungen",
+        "projectExperience": "Beschreibung wichtiger Projekte und Erfolge",
+        "leadershipSkills": "Einschätzung der Führungskompetenzen",
+        "communicationSkills": "Bewertung der Kommunikationsfähigkeiten",
+        "developmentPotential": "Einschätzung des Entwicklungspotenzials"
+      },
+      "metrics": {
+        "technicalExpertise": "Bewertung 1-10",
+        "leadershipCompetency": "Bewertung 1-10",
+        "projectExperience": "Bewertung 1-10",
+        "communicationSkills": "Bewertung 1-10",
+        "educationLevel": "Bewertung 1-10"
+      },
+      "overallAssessment": "Zusammenfassende Gesamtbewertung des Kandidaten in 3-4 Sätzen"
     }`;
 
     const resumeResponse = await fetch("https://api.openai.com/v1/chat/completions", {
