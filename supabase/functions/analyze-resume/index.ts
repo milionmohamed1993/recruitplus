@@ -18,7 +18,7 @@ serve(async (req) => {
     console.log('Analyzing resume text length:', text.length);
     console.log('Work reference provided:', !!workReference);
 
-    const resumeSystemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
+    const resumeSystemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen und Arbeitszeugnissen. 
     Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie exakt wie folgt.
     Wichtig: Entferne alle Kommas aus den Werten und gib nur die angeforderten Felder zurück.
     Extrahiere auch eine Liste von maximal 20 relevanten Skills als Tags.
@@ -45,7 +45,15 @@ serve(async (req) => {
       },
       "education": {
         "degree": "Höchster Abschluss",
-        "university": "Name der Universität"
+        "university": "Name der Universität",
+        "details": {
+          "graduationYear": "Abschlussjahr",
+          "fieldOfStudy": "Studienfach",
+          "grade": "Note falls verfügbar",
+          "additionalCertifications": ["Liste von zusätzlichen Zertifizierungen"],
+          "specialization": "Spezialisierung oder Schwerpunkte",
+          "achievements": ["Besondere akademische Leistungen"]
+        }
       },
       "skills": [
         "Skill1",
@@ -114,9 +122,35 @@ serve(async (req) => {
               WICHTIG: Gib deine Antwort NUR als valides JSON zurück ohne zusätzlichen Text davor oder danach.
               
               {
-                "evaluation": "Deine detaillierte Einschätzung des Arbeitszeugnisses in 2-3 Sätzen",
-                "rating": "Note von 1-6 (1 ist die beste Bewertung)",
-                "keywords": ["Schlüsselwörter", "aus", "dem", "Zeugnis"]
+                "overallEvaluation": {
+                  "rating": "Note von 1-6 (1 ist die beste Bewertung)",
+                  "summary": "Zusammenfassende Bewertung in 2-3 Sätzen",
+                  "recommendationLevel": "Stark empfohlen/Empfohlen/Neutral/Nicht empfohlen"
+                },
+                "detailedAnalysis": {
+                  "performanceMetrics": {
+                    "qualityOfWork": "Bewertung der Arbeitsqualität",
+                    "efficiency": "Bewertung der Effizienz",
+                    "reliability": "Bewertung der Zuverlässigkeit",
+                    "initiative": "Bewertung der Eigeninitiative"
+                  },
+                  "socialSkills": {
+                    "teamwork": "Bewertung der Teamfähigkeit",
+                    "communication": "Bewertung der Kommunikationsfähigkeit",
+                    "leadership": "Bewertung der Führungsqualitäten falls relevant"
+                  }
+                },
+                "keyPhrases": {
+                  "positive": ["Liste positiver Schlüsselphrasen"],
+                  "neutral": ["Liste neutraler Schlüsselphrasen"],
+                  "negative": ["Liste negativer Schlüsselphrasen"]
+                },
+                "context": {
+                  "duration": "Beschäftigungsdauer",
+                  "position": "Position/Rolle",
+                  "responsibilities": ["Hauptverantwortlichkeiten"],
+                  "specialAchievements": ["Besondere Leistungen oder Projekte"]
+                }
               }`,
             },
             {
