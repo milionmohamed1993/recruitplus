@@ -34,14 +34,16 @@ export default function CandidateDetail() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto py-6 space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
-          <CandidateInfo candidate={candidate} />
-          <CandidateApplications candidateId={candidate.id} />
-        </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          <CandidateTimeline candidate={candidate} />
-          <CandidateAttachments candidate={candidate} />
+          <div className="space-y-6">
+            <CandidateInfo candidate={candidate} />
+            <CandidateTimeline candidate={candidate} />
+          </div>
+          <div className="space-y-6">
+            <CandidateApplications candidateId={candidate.id} />
+            <CandidateAttachments candidate={candidate} />
+          </div>
         </div>
       </div>
     </DashboardLayout>
