@@ -1,7 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -22,52 +22,72 @@ serve(async (req) => {
       throw new Error('No file provided');
     }
 
-    const text = await file.text();
-    let systemPrompt = '';
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (type === 'reference') {
-      systemPrompt = `Du bist ein Experte im Analysieren von deutschen Arbeitszeugnissen.
-      Analysiere das folgende Arbeitszeugnis und gib eine kurze Einschätzung ab:
-      - Bewerte die Gesamtleistung des Mitarbeiters
-      - Berücksichtige die typische "Geheimsprache" in deutschen Arbeitszeugnissen
-      - Fasse deine Analyse in 2-3 prägnanten Sätzen zusammen`;
-    } else {
-      throw new Error('Invalid document type');
+    // Upload file to get its contents
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('attachments')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      throw new Error('Failed to upload file');
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
+    // Get the file URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('attachments')
+      .getPublicUrl(fileName);
+
+    // Download the file to get its contents
+    const fileResponse = await fetch(publicUrl);
+    const fileContent = await fileResponse.text();
+
+    // Analyze the content with OpenAI
+    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${openAIApiKey}`,
-        "Content-Type": "application/json",
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: systemPrompt,
+            content: type === 'reference' 
+              ? "Du bist ein Experte im Analysieren von deutschen Arbeitszeugnissen. Analysiere das Arbeitszeugnis und gib eine kurze Zusammenfassung der Bewertung des Mitarbeiters. Berücksichtige dabei die typische 'Geheimsprache' in deutschen Arbeitszeugnissen. Fasse deine Analyse in 2-3 Sätzen zusammen."
+              : "Analyze this document and provide a brief evaluation.",
           },
           {
             role: "user",
-            content: text,
+            content: fileContent,
           },
         ],
         temperature: 0.3,
       }),
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to analyze document');
+    if (!openAIResponse.ok) {
+      throw new Error('Failed to analyze document with OpenAI');
     }
 
-    const data = await response.json();
-    const evaluation = data.choices[0].message.content;
+    const openAIData = await openAIResponse.json();
+    const evaluation = openAIData.choices[0].message.content;
+
+    // Clean up - delete the temporary file
+    await supabase.storage
+      .from('attachments')
+      .remove([fileName]);
 
     return new Response(
       JSON.stringify({ evaluation }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+
   } catch (error) {
     console.error('Error in analyze-document function:', error);
     return new Response(
