@@ -1,46 +1,32 @@
 import { Input } from "@/components/ui/input";
+import { CandidateFormData } from "./types/CandidateFormTypes";
 
 interface PersonalInfoFieldsProps {
-  name: string;
-  setName: (value: string) => void;
-  email: string;
-  setEmail: (value: string) => void;
-  phone: string;
-  setPhone: (value: string) => void;
-  birthdate: string;
-  setBirthdate: (value: string) => void;
-  address: string;
-  setAddress: (value: string) => void;
-  nationality: string;
-  setNationality: (value: string) => void;
-  location: string;
-  setLocation: (value: string) => void;
+  formData: CandidateFormData;
+  setFormData: React.Dispatch<React.SetStateAction<CandidateFormData>>;
 }
 
 export function PersonalInfoFields({
-  name,
-  setName,
-  email,
-  setEmail,
-  phone,
-  setPhone,
-  birthdate,
-  setBirthdate,
-  address,
-  setAddress,
-  nationality,
-  setNationality,
-  location,
-  setLocation,
+  formData,
+  setFormData,
 }: PersonalInfoFieldsProps) {
+  const handleChange = (field: keyof CandidateFormData) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: e.target.value,
+    }));
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
         <label className="block text-sm font-medium mb-2">Name</label>
         <Input
           required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={formData.name}
+          onChange={handleChange("name")}
           placeholder="Max Mustermann"
         />
       </div>
@@ -49,16 +35,16 @@ export function PersonalInfoFields({
         <Input
           required
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange("email")}
           placeholder="max@beispiel.de"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Telefon</label>
         <Input
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          value={formData.phone}
+          onChange={handleChange("phone")}
           placeholder="+49 123 456789"
         />
       </div>
@@ -66,31 +52,31 @@ export function PersonalInfoFields({
         <label className="block text-sm font-medium mb-2">Geburtsdatum</label>
         <Input
           type="date"
-          value={birthdate}
-          onChange={(e) => setBirthdate(e.target.value)}
+          value={formData.birthdate}
+          onChange={handleChange("birthdate")}
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Adresse</label>
         <Input
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          value={formData.address}
+          onChange={handleChange("address")}
           placeholder="Straße, PLZ, Stadt"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Nationalität</label>
         <Input
-          value={nationality}
-          onChange={(e) => setNationality(e.target.value)}
+          value={formData.nationality}
+          onChange={handleChange("nationality")}
           placeholder="z.B. Deutsch"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Standort</label>
         <Input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          value={formData.location}
+          onChange={handleChange("location")}
           placeholder="z.B. Berlin"
         />
       </div>

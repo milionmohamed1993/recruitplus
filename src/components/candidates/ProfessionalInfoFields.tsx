@@ -1,94 +1,80 @@
 import { Input } from "@/components/ui/input";
+import { CandidateFormData } from "./types/CandidateFormTypes";
 
 interface ProfessionalInfoFieldsProps {
-  position: string;
-  setPosition: (value: string) => void;
-  company: string;
-  setCompany: (value: string) => void;
-  department: string;
-  setDepartment: (value: string) => void;
-  industry: string;
-  setIndustry: (value: string) => void;
-  experience: string;
-  setExperience: (value: string) => void;
-  education: string;
-  setEducation: (value: string) => void;
-  university: string;
-  setUniversity: (value: string) => void;
+  formData: CandidateFormData;
+  setFormData: React.Dispatch<React.SetStateAction<CandidateFormData>>;
 }
 
 export function ProfessionalInfoFields({
-  position,
-  setPosition,
-  company,
-  setCompany,
-  department,
-  setDepartment,
-  industry,
-  setIndustry,
-  experience,
-  setExperience,
-  education,
-  setEducation,
-  university,
-  setUniversity,
+  formData,
+  setFormData,
 }: ProfessionalInfoFieldsProps) {
+  const handleChange = (field: keyof CandidateFormData) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: e.target.value,
+    }));
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div>
         <label className="block text-sm font-medium mb-2">Position</label>
         <Input
           required
-          value={position}
-          onChange={(e) => setPosition(e.target.value)}
+          value={formData.position}
+          onChange={handleChange("position")}
           placeholder="z.B. Software Entwickler"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Firma</label>
         <Input
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
+          value={formData.company}
+          onChange={handleChange("company")}
           placeholder="Aktueller Arbeitgeber"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Abteilung</label>
         <Input
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
+          value={formData.department}
+          onChange={handleChange("department")}
           placeholder="z.B. IT"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Branche</label>
         <Input
-          value={industry}
-          onChange={(e) => setIndustry(e.target.value)}
+          value={formData.industry}
+          onChange={handleChange("industry")}
           placeholder="z.B. Technologie"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Berufserfahrung</label>
         <Input
-          value={experience}
-          onChange={(e) => setExperience(e.target.value)}
+          value={formData.experience}
+          onChange={handleChange("experience")}
           placeholder="z.B. 5 Jahre"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Ausbildung</label>
         <Input
-          value={education}
-          onChange={(e) => setEducation(e.target.value)}
+          value={formData.education}
+          onChange={handleChange("education")}
           placeholder="z.B. Master"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Universität</label>
         <Input
-          value={university}
-          onChange={(e) => setUniversity(e.target.value)}
+          value={formData.university}
+          onChange={handleChange("university")}
           placeholder="Name der Universität"
         />
       </div>
