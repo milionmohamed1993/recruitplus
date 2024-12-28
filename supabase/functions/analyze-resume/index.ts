@@ -9,18 +9,20 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { text } = await req.json();
+    const { text, workReference } = await req.json();
     console.log('Analyzing resume text length:', text.length);
+    console.log('Work reference provided:', !!workReference);
 
-    const systemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
+    // First, analyze the resume
+    const resumeSystemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
     Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie exakt wie folgt.
     Wichtig: Entferne alle Kommas aus den Werten und gib nur die angeforderten Felder zurück.
+    Extrahiere auch eine Liste von maximal 20 relevanten Skills als Tags.
 
     {
       "personalInfo": {
@@ -42,18 +44,11 @@ serve(async (req) => {
       "education": {
         "degree": "Höchster Abschluss",
         "university": "Name der Universität"
-      }
-    }
+      },
+      "skills": ["Skill1", "Skill2", "..."] // Maximal 20 relevante Skills
+    }`;
 
-    Wichtige Hinweise:
-    - Entferne ALLE Kommas aus den Werten
-    - Verwende keine Aufzählungszeichen oder Listenpunkte
-    - Gib nur die Werte zurück die im Text gefunden wurden
-    - Lasse nicht gefundene Werte leer ("")
-    - Formatiere Datumsangaben immer als YYYY-MM-DD
-    - Bei der Berufserfahrung gib nur die Zahl der Jahre an`;
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resumeResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${openAIApiKey}`,
@@ -64,7 +59,7 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: systemPrompt,
+            content: resumeSystemPrompt,
           },
           {
             role: "user",
@@ -75,59 +70,57 @@ serve(async (req) => {
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.text();
+    if (!resumeResponse.ok) {
+      const errorData = await resumeResponse.text();
       console.error('OpenAI API Error:', errorData);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      throw new Error(`OpenAI API error: ${resumeResponse.status}`);
     }
 
-    const data = await response.json();
-    console.log('OpenAI response received');
+    const resumeData = await resumeResponse.json();
+    let parsedContent = JSON.parse(resumeData.choices[0].message.content);
 
-    if (!data.choices?.[0]?.message?.content) {
-      console.error('Unexpected OpenAI response format:', data);
-      throw new Error('Unexpected response format from OpenAI');
+    // If work reference is provided, analyze it
+    let workReferenceEvaluation = "";
+    if (workReference) {
+      const workRefResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${openAIApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: `Du bist ein Experte im Analysieren von Arbeitszeugnissen.
+              Gib eine kurze Einschätzung des Arbeitszeugnisses ab und bewerte die Leistung des Mitarbeiters.
+              Berücksichtige dabei die typische "Geheimsprache" in deutschen Arbeitszeugnissen.
+              Fasse deine Analyse in 2-3 Sätzen zusammen.`,
+            },
+            {
+              role: "user",
+              content: workReference,
+            },
+          ],
+          temperature: 0.3,
+        }),
+      });
+
+      if (!workRefResponse.ok) {
+        console.error('Error analyzing work reference:', await workRefResponse.text());
+        workReferenceEvaluation = "Fehler bei der Analyse des Arbeitszeugnisses";
+      } else {
+        const workRefData = await workRefResponse.json();
+        workReferenceEvaluation = workRefData.choices[0].message.content;
+      }
     }
 
-    // Parse and clean the response
-    let parsedContent;
-    try {
-      const cleanContent = data.choices[0].message.content
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
-      
-      parsedContent = JSON.parse(cleanContent);
-      
-      // Clean up the parsed data
-      const cleanValue = (value: string) => {
-        if (!value) return "";
-        return value
-          .replace(/,/g, '') // Remove all commas
-          .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-          .trim();
-      };
-
-      // Clean personal info
-      Object.keys(parsedContent.personalInfo).forEach(key => {
-        parsedContent.personalInfo[key] = cleanValue(parsedContent.personalInfo[key]);
-      });
-
-      // Clean professional info
-      Object.keys(parsedContent.professionalInfo).forEach(key => {
-        parsedContent.professionalInfo[key] = cleanValue(parsedContent.professionalInfo[key]);
-      });
-
-      // Clean education info
-      Object.keys(parsedContent.education).forEach(key => {
-        parsedContent.education[key] = cleanValue(parsedContent.education[key]);
-      });
-
-      console.log('Successfully cleaned and parsed resume data');
-    } catch (error) {
-      console.error('Error parsing or cleaning response:', error);
-      throw new Error('Failed to parse the resume data structure');
-    }
+    // Add work reference evaluation to the response
+    parsedContent = {
+      ...parsedContent,
+      workReferenceEvaluation,
+    };
 
     return new Response(JSON.stringify({
       result: parsedContent

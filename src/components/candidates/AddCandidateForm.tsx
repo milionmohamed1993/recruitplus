@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { PersonalInfoFields } from "./PersonalInfoFields";
 import { ProfessionalInfoFields } from "./ProfessionalInfoFields";
+import { WorkReferenceFields } from "./WorkReferenceFields";
 import { ResumeUpload } from "./ResumeUpload";
+import { Badge } from "@/components/ui/badge";
 
 export function AddCandidateForm() {
   // Personal Information
@@ -25,15 +27,19 @@ export function AddCandidateForm() {
   const [education, setEducation] = useState("");
   const [university, setUniversity] = useState("");
 
+  // Work Reference
+  const [workReference, setWorkReference] = useState("");
+  const [workReferenceEvaluation, setWorkReferenceEvaluation] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleResumeAnalyzed = (data: any) => {
+  const handleResumeAnalyzed = async (data: any) => {
     if (data.personalInfo) {
       setName(data.personalInfo.name || "");
       setEmail(data.personalInfo.email || "");
       setPhone(data.personalInfo.phone || "");
-      // If we get a German date format, we need to parse and format it
       if (data.personalInfo.birthdate) {
         try {
           const date = new Date(data.personalInfo.birthdate);
@@ -62,6 +68,14 @@ export function AddCandidateForm() {
       setUniversity(data.education.university || "");
     }
 
+    if (data.skills) {
+      setSkills(data.skills);
+    }
+
+    if (data.workReferenceEvaluation) {
+      setWorkReferenceEvaluation(data.workReferenceEvaluation);
+    }
+
     toast({
       title: "Lebenslauf analysiert",
       description: "Die Informationen wurden erfolgreich extrahiert.",
@@ -71,7 +85,6 @@ export function AddCandidateForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Format birthdate to ISO format if it exists
       const formattedBirthdate = birthdate ? new Date(birthdate).toISOString().split('T')[0] : null;
 
       const { data, error } = await supabase
@@ -92,12 +105,14 @@ export function AddCandidateForm() {
           education,
           university,
           status: "new",
+          work_reference: workReference,
+          work_reference_evaluation: workReferenceEvaluation,
+          skills,
         })
         .select();
 
       if (error) throw error;
 
-      // After successfully creating the candidate, upload any attachments
       if (data && data[0]) {
         const candidateId = data[0].id;
         const files = document.querySelectorAll<HTMLInputElement>('#resume-upload');
@@ -190,6 +205,29 @@ export function AddCandidateForm() {
             setUniversity={setUniversity}
           />
         </div>
+
+        <div>
+          <h3 className="text-lg font-medium mb-4 text-primary">Arbeitszeugnis</h3>
+          <WorkReferenceFields
+            workReference={workReference}
+            setWorkReference={setWorkReference}
+            workReferenceEvaluation={workReferenceEvaluation}
+            setWorkReferenceEvaluation={setWorkReferenceEvaluation}
+          />
+        </div>
+
+        {skills.length > 0 && (
+          <div>
+            <h3 className="text-lg font-medium mb-4 text-primary">Skills</h3>
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill, index) => (
+                <Badge key={index} variant="secondary">
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div>
           <h3 className="text-lg font-medium mb-4 text-primary">Lebenslauf (Optional)</h3>
