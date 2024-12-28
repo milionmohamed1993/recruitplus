@@ -9,12 +9,8 @@ interface PersonalInfoFieldsProps {
   setPhone: (value: string) => void;
   birthdate: string;
   setBirthdate: (value: string) => void;
-  street: string;
-  setStreet: (value: string) => void;
-  postalCode: string;
-  setPostalCode: (value: string) => void;
-  city: string;
-  setCity: (value: string) => void;
+  address: string;
+  setAddress: (value: string) => void;
   nationality: string;
   setNationality: (value: string) => void;
   location: string;
@@ -30,12 +26,8 @@ export function PersonalInfoFields({
   setPhone,
   birthdate,
   setBirthdate,
-  street,
-  setStreet,
-  postalCode,
-  setPostalCode,
-  city,
-  setCity,
+  address,
+  setAddress,
   nationality,
   setNationality,
   location,
@@ -79,27 +71,11 @@ export function PersonalInfoFields({
         />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-2">Straße</label>
+        <label className="block text-sm font-medium mb-2">Adresse</label>
         <Input
-          value={street}
-          onChange={(e) => setStreet(e.target.value)}
-          placeholder="Musterstraße 123"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">PLZ</label>
-        <Input
-          value={postalCode}
-          onChange={(e) => setPostalCode(e.target.value)}
-          placeholder="12345"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Stadt</label>
-        <Input
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Berlin"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Straße, PLZ, Stadt"
         />
       </div>
       <div>
