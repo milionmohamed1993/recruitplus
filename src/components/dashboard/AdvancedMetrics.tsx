@@ -1,15 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserPlus, Building2, GraduationCap, Globe, Briefcase } from "lucide-react";
+import { Users, UserPlus, Building2, GraduationCap, Globe, Briefcase, Clock, Target } from "lucide-react";
 import { useCandidates } from "@/hooks/useCandidates";
 import type { Candidate } from "@/types/database.types";
 
 export function AdvancedMetrics() {
   const { data: candidates } = useCandidates();
 
-  // Metriken aus Kandidatendaten berechnen
+  // Calculate metrics from candidate data
   const sourceMetrics = candidates?.reduce((acc: Record<string, number>, candidate: Candidate) => {
     const source = candidate.source || "Direkt";
     acc[source] = (acc[source] || 0) + 1;
+    return acc;
+  }, {});
+
+  const educationMetrics = candidates?.reduce((acc: Record<string, number>, candidate: Candidate) => {
+    const education = candidate.education || "Nicht angegeben";
+    acc[education] = (acc[education] || 0) + 1;
+    return acc;
+  }, {});
+
+  const locationMetrics = candidates?.reduce((acc: Record<string, number>, candidate: Candidate) => {
+    const location = candidate.location || "Nicht angegeben";
+    acc[location] = (acc[location] || 0) + 1;
+    return acc;
+  }, {});
+
+  const industryMetrics = candidates?.reduce((acc: Record<string, number>, candidate: Candidate) => {
+    const industry = candidate.industry || "Nicht angegeben";
+    acc[industry] = (acc[industry] || 0) + 1;
     return acc;
   }, {});
 
@@ -24,27 +42,42 @@ export function AdvancedMetrics() {
     },
     {
       title: "Bildungsniveau",
-      items: [
-        { label: "Bachelor", value: candidates?.filter(c => c.education?.includes("Bachelor"))?.length || 0, icon: <GraduationCap className="h-4 w-4 text-orange-600" /> },
-        { label: "Master", value: candidates?.filter(c => c.education?.includes("Master"))?.length || 0, icon: <GraduationCap className="h-4 w-4 text-red-600" /> },
-        { label: "Promotion", value: candidates?.filter(c => c.education?.includes("Promotion"))?.length || 0, icon: <GraduationCap className="h-4 w-4 text-yellow-600" /> }
-      ]
+      items: Object.entries(educationMetrics || {}).slice(0, 3).map(([education, count]) => ({
+        label: education,
+        value: count,
+        icon: <GraduationCap className="h-4 w-4 text-orange-600" />
+      }))
     },
     {
       title: "Standort-Verteilung",
       items: [
-        { label: "Vor Ort", value: candidates?.filter(c => c.location === "vor_ort")?.length || 0, icon: <Globe className="h-4 w-4 text-indigo-600" /> },
-        { label: "Remote", value: candidates?.filter(c => c.location === "remote")?.length || 0, icon: <Globe className="h-4 w-4 text-pink-600" /> },
-        { label: "Hybrid", value: candidates?.filter(c => c.location === "hybrid")?.length || 0, icon: <Globe className="h-4 w-4 text-cyan-600" /> }
+        { 
+          label: "Vor Ort", 
+          value: candidates?.filter(c => c.preferred_work_model === "onsite").length || 0, 
+          icon: <Globe className="h-4 w-4 text-indigo-600" /> 
+        },
+        { 
+          label: "Remote", 
+          value: candidates?.filter(c => c.preferred_work_model === "remote").length || 0, 
+          icon: <Globe className="h-4 w-4 text-pink-600" /> 
+        },
+        { 
+          label: "Hybrid", 
+          value: candidates?.filter(c => c.preferred_work_model === "hybrid").length || 0, 
+          icon: <Globe className="h-4 w-4 text-cyan-600" /> 
+        }
       ]
     },
     {
-      title: "Erfahrungsstufe",
-      items: [
-        { label: "Junior", value: candidates?.filter(c => c.experience?.includes("Junior"))?.length || 0, icon: <Briefcase className="h-4 w-4 text-emerald-600" /> },
-        { label: "Fortgeschritten", value: candidates?.filter(c => c.experience?.includes("Fortgeschritten"))?.length || 0, icon: <Briefcase className="h-4 w-4 text-violet-600" /> },
-        { label: "Senior", value: candidates?.filter(c => c.experience?.includes("Senior"))?.length || 0, icon: <Briefcase className="h-4 w-4 text-amber-600" /> }
-      ]
+      title: "Top Branchen",
+      items: Object.entries(industryMetrics || {})
+        .sort(([, a], [, b]) => (b as number) - (a as number))
+        .slice(0, 3)
+        .map(([industry, count]) => ({
+          label: industry,
+          value: count,
+          icon: <Briefcase className="h-4 w-4 text-emerald-600" />
+        }))
     }
   ];
 
@@ -57,8 +90,8 @@ export function AdvancedMetrics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {section.items.map((item) => (
-                <div key={item.label} className="flex items-center justify-between">
+              {section.items.map((item, index) => (
+                <div key={item.label + index} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     {item.icon}
                     <span className="text-sm text-muted-foreground">{item.label}</span>
