@@ -1,4 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { GraduationCap, School } from "lucide-react";
+import { EditableField } from "./EditableField";
+import { EditableSection } from "./EditableSection";
 import type { Candidate } from "@/types/database.types";
 
 interface EducationInfoDisplayProps {
@@ -8,24 +10,30 @@ interface EducationInfoDisplayProps {
   setEditedCandidate: (candidate: Candidate) => void;
 }
 
-export function EducationInfoDisplay({ 
-  candidate, 
-  isEditing, 
-  editedCandidate, 
-  setEditedCandidate 
+export function EducationInfoDisplay({
+  candidate,
+  isEditing,
+  editedCandidate,
+  setEditedCandidate,
 }: EducationInfoDisplayProps) {
   return (
-    <CardContent>
-      <div className="grid gap-4">
-        <div>
-          <div className="text-sm font-medium text-muted-foreground">Ausbildung</div>
-          <div>{candidate.education || 'Nicht angegeben'}</div>
-        </div>
-        <div>
-          <div className="text-sm font-medium text-muted-foreground">Universität</div>
-          <div>{candidate.university || 'Nicht angegeben'}</div>
-        </div>
-      </div>
-    </CardContent>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <EditableSection title="Bildungsweg">
+        <EditableField
+          label="Ausbildung"
+          value={editedCandidate.education || ""}
+          isEditing={isEditing}
+          onChange={(value) => setEditedCandidate({ ...editedCandidate, education: value })}
+          icon={<GraduationCap className="h-4 w-4" />}
+        />
+        <EditableField
+          label="Universität"
+          value={editedCandidate.university || ""}
+          isEditing={isEditing}
+          onChange={(value) => setEditedCandidate({ ...editedCandidate, university: value })}
+          icon={<School className="h-4 w-4" />}
+        />
+      </EditableSection>
+    </div>
   );
 }

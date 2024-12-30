@@ -1,4 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Building, Briefcase } from "lucide-react";
+import { EditableField } from "./EditableField";
+import { EditableSection } from "./EditableSection";
 import type { Candidate } from "@/types/database.types";
 
 interface ProfessionalInfoDisplayProps {
@@ -8,28 +10,40 @@ interface ProfessionalInfoDisplayProps {
   setEditedCandidate: (candidate: Candidate) => void;
 }
 
-export function ProfessionalInfoDisplay({ 
-  candidate, 
-  isEditing, 
-  editedCandidate, 
-  setEditedCandidate 
+export function ProfessionalInfoDisplay({
+  candidate,
+  isEditing,
+  editedCandidate,
+  setEditedCandidate,
 }: ProfessionalInfoDisplayProps) {
   return (
-    <CardContent>
-      <div className="grid gap-4">
-        <div>
-          <div className="text-sm font-medium text-muted-foreground">Abteilung</div>
-          <div>{candidate.department || 'Nicht angegeben'}</div>
-        </div>
-        <div>
-          <div className="text-sm font-medium text-muted-foreground">Branche</div>
-          <div>{candidate.industry || 'Nicht angegeben'}</div>
-        </div>
-        <div>
-          <div className="text-sm font-medium text-muted-foreground">Berufserfahrung</div>
-          <div>{candidate.experience || 'Nicht angegeben'}</div>
-        </div>
-      </div>
-    </CardContent>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <EditableSection title="Aktuelle Position">
+        <EditableField
+          label="Abteilung"
+          value={editedCandidate.department || ""}
+          isEditing={isEditing}
+          onChange={(value) => setEditedCandidate({ ...editedCandidate, department: value })}
+          icon={<Building className="h-4 w-4" />}
+        />
+        <EditableField
+          label="Branche"
+          value={editedCandidate.industry || ""}
+          isEditing={isEditing}
+          onChange={(value) => setEditedCandidate({ ...editedCandidate, industry: value })}
+          icon={<Briefcase className="h-4 w-4" />}
+        />
+      </EditableSection>
+
+      <EditableSection title="Erfahrung">
+        <EditableField
+          label="Berufserfahrung"
+          value={editedCandidate.experience || ""}
+          isEditing={isEditing}
+          onChange={(value) => setEditedCandidate({ ...editedCandidate, experience: value })}
+          icon={<Briefcase className="h-4 w-4" />}
+        />
+      </EditableSection>
+    </div>
   );
 }
