@@ -24,7 +24,10 @@ export const supabase = createClient<Database>(
   }
 )
 
-// Add error logging
-supabase.handleError = (error: any) => {
-  console.error('Supabase error:', error)
-}
+// Add global error handling through interceptors
+supabase.rest.interceptors.responseError.use(
+  (error) => {
+    console.error('Supabase error:', error)
+    return Promise.reject(error)
+  }
+)
