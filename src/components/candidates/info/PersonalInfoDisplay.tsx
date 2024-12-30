@@ -18,7 +18,7 @@ export function PersonalInfoDisplay({
   setEditedCandidate,
 }: PersonalInfoDisplayProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+    <div className="grid grid-cols-1 gap-6">
       <EditableSection title="Kontakt">
         <EditableField
           label="E-Mail"
@@ -53,23 +53,21 @@ export function PersonalInfoDisplay({
         />
       </EditableSection>
 
-      <EditableSection title="Standort" className="md:col-span-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <EditableField
-            label="Adresse"
-            value={editedCandidate.address || ""}
-            isEditing={isEditing}
-            onChange={(value) => setEditedCandidate({ ...editedCandidate, address: value })}
-            icon={<MapPin className="h-4 w-4" />}
-          />
-          <EditableField
-            label="Standort"
-            value={editedCandidate.location || ""}
-            isEditing={isEditing}
-            onChange={(value) => setEditedCandidate({ ...editedCandidate, location: value })}
-            icon={<Globe className="h-4 w-4" />}
-          />
-        </div>
+      <EditableSection title="Standort">
+        <EditableField
+          label="Adresse"
+          value={editedCandidate.address || ""}
+          isEditing={isEditing}
+          onChange={(value) => setEditedCandidate({ ...editedCandidate, address: value })}
+          icon={<MapPin className="h-4 w-4" />}
+        />
+        <EditableField
+          label="Standort"
+          value={editedCandidate.location || ""}
+          isEditing={isEditing}
+          onChange={(value) => setEditedCandidate({ ...editedCandidate, location: value })}
+          icon={<Globe className="h-4 w-4" />}
+        />
       </EditableSection>
     </div>
   );
