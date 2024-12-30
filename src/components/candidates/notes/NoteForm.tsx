@@ -29,16 +29,7 @@ export function NoteForm({ onSubmit, onCancel }: NoteFormProps) {
 
   const handleSubmit = () => {
     if (!selectedCategory) return;
-    
-    // Format answers into a more readable format
-    const formattedAnswers = Object.entries(answers).reduce((acc, [question, answer]) => {
-      return {
-        ...acc,
-        [question]: answer
-      };
-    }, {});
-    
-    onSubmit(selectedCategory, formattedAnswers);
+    onSubmit(selectedCategory, answers);
   };
 
   return (

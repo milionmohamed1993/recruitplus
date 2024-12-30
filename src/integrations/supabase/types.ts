@@ -92,50 +92,6 @@ export type Database = {
           },
         ]
       }
-      candidate_checklist: {
-        Row: {
-          candidate_id: number | null
-          category: string
-          completed: boolean | null
-          completed_at: string | null
-          completed_by: string | null
-          created_at: string | null
-          id: number
-          item: string
-          updated_at: string | null
-        }
-        Insert: {
-          candidate_id?: number | null
-          category: string
-          completed?: boolean | null
-          completed_at?: string | null
-          completed_by?: string | null
-          created_at?: string | null
-          id?: number
-          item: string
-          updated_at?: string | null
-        }
-        Update: {
-          candidate_id?: number | null
-          category?: string
-          completed?: boolean | null
-          completed_at?: string | null
-          completed_by?: string | null
-          created_at?: string | null
-          id?: number
-          item?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "candidate_checklist_candidate_id_fkey"
-            columns: ["candidate_id"]
-            isOneToOne: false
-            referencedRelation: "candidates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       candidate_education: {
         Row: {
           candidate_id: number | null
