@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Star, X } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 interface SkillsInputProps {
   skills: { name: string; rating: number }[];
@@ -46,42 +47,41 @@ export function SkillsInput({ skills, setSkills }: SkillsInputProps) {
           <Plus className="h-4 w-4" />
         </Button>
       </div>
-      <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
         {skills.map((skill, index) => (
-          <div
+          <Badge
             key={index}
-            className="flex items-center justify-between bg-accent/50 p-3 rounded-lg"
+            variant="secondary"
+            className="flex items-center gap-2 px-3 py-1.5"
           >
             <span>{skill.name}</span>
-            <div className="flex items-center gap-2">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((rating) => (
-                  <button
-                    key={rating}
-                    type="button"
-                    onClick={() => handleRatingChange(index, rating)}
-                    className="focus:outline-none"
-                  >
-                    <Star
-                      className={`h-4 w-4 ${
-                        rating <= skill.rating
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  </button>
-                ))}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemoveSkill(index)}
-                className="h-8 w-8"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center gap-1 ml-2">
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <button
+                  key={rating}
+                  type="button"
+                  onClick={() => handleRatingChange(index, rating)}
+                  className="focus:outline-none"
+                >
+                  <Star
+                    className={`h-3 w-3 ${
+                      rating <= skill.rating
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-300"
+                    }`}
+                  />
+                </button>
+              ))}
             </div>
-          </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleRemoveSkill(index)}
+              className="h-5 w-5 p-0 ml-1 hover:bg-transparent"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </Badge>
         ))}
       </div>
     </div>

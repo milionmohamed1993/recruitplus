@@ -61,6 +61,8 @@ export type Database = {
           file_path: string
           file_type: string | null
           id: number
+          skill_analysis: Json | null
+          skill_questions: Json | null
         }
         Insert: {
           analysis?: string | null
@@ -71,6 +73,8 @@ export type Database = {
           file_path: string
           file_type?: string | null
           id?: number
+          skill_analysis?: Json | null
+          skill_questions?: Json | null
         }
         Update: {
           analysis?: string | null
@@ -81,6 +85,8 @@ export type Database = {
           file_path?: string
           file_type?: string | null
           id?: number
+          skill_analysis?: Json | null
+          skill_questions?: Json | null
         }
         Relationships: [
           {
@@ -483,6 +489,47 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      skill_assessments: {
+        Row: {
+          candidate_id: number | null
+          category: string
+          created_at: string | null
+          id: number
+          notes: string | null
+          rating: number | null
+          skill_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          candidate_id?: number | null
+          category: string
+          created_at?: string | null
+          id?: number
+          notes?: string | null
+          rating?: number | null
+          skill_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          candidate_id?: number | null
+          category?: string
+          created_at?: string | null
+          id?: number
+          notes?: string | null
+          rating?: number | null
+          skill_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_assessments_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
