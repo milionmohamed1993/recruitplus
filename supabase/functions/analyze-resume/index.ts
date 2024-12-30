@@ -1,10 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from '@supabase/supabase-js';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,51 +14,8 @@ serve(async (req) => {
   }
 
   try {
-    const { text, workReference, pdfImages, candidateId } = await req.json();
+    const { text, workReference } = await req.json();
     console.log('Analyzing resume text length:', text.length);
-    console.log('Number of PDF images:', pdfImages?.length);
-
-    // Initialize Supabase client
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Handle profile photo if available
-    let profilePhotoUrl = null;
-    if (pdfImages && pdfImages.length > 0) {
-      try {
-        const imageData = pdfImages[0];
-        const buffer = Uint8Array.from(atob(imageData.replace(/^data:image\/\w+;base64,/, '')), c => c.charCodeAt(0));
-        
-        const fileName = `profile-${candidateId}-${Date.now()}.png`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('attachments')
-          .upload(fileName, buffer, {
-            contentType: 'image/png',
-            upsert: true
-          });
-
-        if (uploadError) {
-          console.error('Error uploading profile photo:', uploadError);
-        } else {
-          const { data: { publicUrl } } = supabase.storage
-            .from('attachments')
-            .getPublicUrl(fileName);
-          
-          profilePhotoUrl = publicUrl;
-
-          // Update candidate with profile photo URL
-          const { error: updateError } = await supabase
-            .from('candidates')
-            .update({ profile_photo_url: publicUrl })
-            .eq('id', candidateId);
-
-          if (updateError) {
-            console.error('Error updating candidate profile photo:', updateError);
-          }
-        }
-      } catch (imageError) {
-        console.error('Error processing profile photo:', imageError);
-      }
-    }
 
     const resumeSystemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
     Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie exakt wie folgt.
@@ -127,7 +81,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -149,40 +103,98 @@ serve(async (req) => {
     }
 
     const resumeData = await resumeResponse.json();
+    console.log('Raw OpenAI response:', resumeData.choices[0].message.content);
+    
     let parsedContent;
     try {
       parsedContent = JSON.parse(resumeData.choices[0].message.content.trim());
-      
-      // Add education entries to database
-      if (parsedContent.education?.educationHistory) {
-        for (const edu of parsedContent.education.educationHistory) {
-          const { error: eduError } = await supabase
-            .from('candidate_education')
-            .insert({
-              candidate_id: candidateId,
-              institution: edu.institution,
-              degree: edu.degree,
-              field_of_study: edu.fieldOfStudy,
-              start_date: edu.startDate,
-              end_date: edu.endDate
-            });
-
-          if (eduError) {
-            console.error('Error inserting education:', eduError);
-          }
-        }
-      }
-      
     } catch (parseError) {
       console.error('Error parsing OpenAI response:', parseError);
       console.error('Raw content:', resumeData.choices[0].message.content);
       throw new Error('Failed to parse the resume data structure');
     }
 
-    // Add profile photo URL to the response
+    // If work reference is provided, analyze it
+    let workReferenceEvaluation = "";
+    if (workReference) {
+      const workRefResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${openAIApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: `Du bist ein Experte im Analysieren von deutschen Arbeitszeugnissen.
+              Analysiere das folgende Arbeitszeugnis und gib eine detaillierte Einschätzung.
+              Berücksichtige dabei die typische "Geheimsprache" in deutschen Arbeitszeugnissen.
+              
+              WICHTIG: Gib deine Antwort NUR als valides JSON zurück ohne zusätzlichen Text davor oder danach.
+              
+              {
+                "overallEvaluation": {
+                  "rating": "Note von 1-6 (1 ist die beste Bewertung)",
+                  "summary": "Zusammenfassende Bewertung in 2-3 Sätzen",
+                  "recommendationLevel": "Stark empfohlen/Empfohlen/Neutral/Nicht empfohlen"
+                },
+                "detailedAnalysis": {
+                  "performanceMetrics": {
+                    "qualityOfWork": "Bewertung der Arbeitsqualität",
+                    "efficiency": "Bewertung der Effizienz",
+                    "reliability": "Bewertung der Zuverlässigkeit",
+                    "initiative": "Bewertung der Eigeninitiative"
+                  },
+                  "socialSkills": {
+                    "teamwork": "Bewertung der Teamfähigkeit",
+                    "communication": "Bewertung der Kommunikationsfähigkeit",
+                    "leadership": "Bewertung der Führungsqualitäten falls relevant"
+                  }
+                },
+                "keyPhrases": {
+                  "positive": ["Liste positiver Schlüsselphrasen"],
+                  "neutral": ["Liste neutraler Schlüsselphrasen"],
+                  "negative": ["Liste negativer Schlüsselphrasen"]
+                },
+                "context": {
+                  "duration": "Beschäftigungsdauer",
+                  "position": "Position/Rolle",
+                  "responsibilities": ["Hauptverantwortlichkeiten"],
+                  "specialAchievements": ["Besondere Leistungen oder Projekte"]
+                }
+              }`,
+            },
+            {
+              role: "user",
+              content: workReference,
+            },
+          ],
+          temperature: 0.3,
+        }),
+      });
+
+      if (!workRefResponse.ok) {
+        console.error('Error analyzing work reference:', await workRefResponse.text());
+        workReferenceEvaluation = "Fehler bei der Analyse des Arbeitszeugnisses";
+      } else {
+        const workRefData = await workRefResponse.json();
+        try {
+          const parsedWorkRef = JSON.parse(workRefData.choices[0].message.content.trim());
+          workReferenceEvaluation = JSON.stringify(parsedWorkRef);
+        } catch (parseError) {
+          console.error('Error parsing work reference response:', parseError);
+          console.error('Raw work ref content:', workRefData.choices[0].message.content);
+          workReferenceEvaluation = "Fehler beim Parsen der Arbeitszeugnis-Analyse";
+        }
+      }
+    }
+
+    // Add work reference evaluation to the response
     parsedContent = {
       ...parsedContent,
-      profilePhotoUrl
+      workReferenceEvaluation,
     };
 
     return new Response(JSON.stringify({

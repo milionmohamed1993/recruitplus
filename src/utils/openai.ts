@@ -1,28 +1,27 @@
 import { supabase } from "@/lib/supabase";
 
-export async function analyzeResumeWithGPT(text: string, pdfImages: string[] = []) {
+export async function analyzeResumeWithGPT(text: string) {
   try {
-    const { data: secretData, error: secretError } = await supabase
-      .from('secrets')
-      .select('value')
-      .eq('key', 'OPENAI_API_KEY')
-      .single();
-
-    if (secretError) throw secretError;
-
+    console.log('Starting resume analysis...');
+    
     const { data, error } = await supabase.functions.invoke('analyze-resume', {
-      body: { 
-        text, 
-        pdfImages,
-        candidateId: window.location.pathname.split('/').pop() 
-      },
+      body: { text }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error calling analyze-resume function:', error);
+      throw error;
+    }
 
+    if (data.error) {
+      console.error('Error from analyze-resume function:', data.error);
+      throw new Error(data.error);
+    }
+
+    console.log('Resume analysis completed successfully');
     return JSON.stringify(data.result);
   } catch (error) {
-    console.error("Error in analyzeResumeWithGPT:", error);
+    console.error('Error in analyzeResumeWithGPT:', error);
     throw error;
   }
 }

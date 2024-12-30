@@ -6,13 +6,6 @@ import { ResumeProgressDialog } from "./ResumeProgressDialog";
 import { ResumeUploadButton } from "./ResumeUploadButton";
 import { processResumeFile } from "@/utils/fileProcessor";
 import { analyzeResumeWithGPT } from "@/utils/openai";
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.mjs',
-  import.meta.url
-).toString();
 
 interface ResumeUploadProps {
   onResumeAnalyzed: (data: any) => void;
@@ -24,43 +17,6 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState(0);
   const [progressStatus, setProgressStatus] = useState("");
-
-  const extractImagesFromPDF = async (file: File): Promise<string[]> => {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    const images: string[] = [];
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const ops = await page.getOperatorList();
-      const imgIndex = ops.fnArray.indexOf(pdfjsLib.OPS.paintImageXObject);
-      
-      if (imgIndex !== -1) {
-        const resources = page.resources;
-        const imgReference = ops.argsArray[imgIndex][0];
-        if (resources.XObject) {
-          const img = resources.XObject.get(imgReference);
-          
-          if (img) {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              const imgData = ctx.createImageData(img.width, img.height);
-              imgData.data.set(img.data);
-              ctx.putImageData(imgData, 0, 0);
-              
-              images.push(canvas.toDataURL('image/png'));
-            }
-          }
-        }
-      }
-    }
-
-    return images;
-  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -76,16 +32,9 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
         const extractedText = await processResumeFile(selectedFiles[0]);
         setResume(extractedText);
         
-        // Extract images if it's a PDF
-        let pdfImages: string[] = [];
-        if (selectedFiles[0].type === 'application/pdf') {
-          setProgressStatus("Extrahiere Bilder aus PDF...");
-          pdfImages = await extractImagesFromPDF(selectedFiles[0]);
-        }
-        
         setProgress(70);
         setProgressStatus("Lebenslauf wird analysiert...");
-        await analyzeResume(extractedText, pdfImages);
+        await analyzeResume(extractedText);
       } catch (error: any) {
         console.error("Error processing file:", error);
         toast({
@@ -105,7 +54,7 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
     setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
   };
 
-  const analyzeResume = async (text?: string, pdfImages: string[] = []) => {
+  const analyzeResume = async (text?: string) => {
     const textToAnalyze = text || resume;
     
     if (!textToAnalyze) {
@@ -121,7 +70,7 @@ export function ResumeUpload({ onResumeAnalyzed }: ResumeUploadProps) {
       setProgress(85);
       setProgressStatus("KI-Analyse wird durchgeführt...");
 
-      const result = await analyzeResumeWithGPT(textToAnalyze, pdfImages);
+      const result = await analyzeResumeWithGPT(textToAnalyze);
       
       try {
         const parsedData = JSON.parse(result);
