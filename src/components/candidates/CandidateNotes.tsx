@@ -25,35 +25,23 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: notes, isLoading, error } = useQuery({
+  const { data: notes, isLoading } = useQuery({
     queryKey: ["candidate-notes", candidate.id],
     queryFn: async () => {
-      console.log("Fetching notes for candidate:", candidate.id);
-      try {
-        const { data, error } = await supabase
-          .from("candidate_notes")
-          .select("*")
-          .eq("candidate_id", candidate.id)
-          .order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("candidate_notes")
+        .select("*")
+        .eq("candidate_id", candidate.id)
+        .order("created_at", { ascending: false });
 
-        if (error) {
-          console.error("Supabase error:", error);
-          throw error;
-        }
-
-        console.log("Notes fetched successfully:", data);
-        return data;
-      } catch (error) {
-        console.error("Error fetching notes:", error);
-        throw error;
-      }
+      if (error) throw error;
+      return data;
     },
-    retry: 3,
-    retryDelay: 1000,
   });
 
   const handleAddNote = async (category: string, answers: Record<string, string>) => {
     try {
+      // Format answers into a single string with questions and answers
       const formattedContent = Object.entries(answers)
         .map(([question, answer]) => `${question}\n${answer}`)
         .join("\n\n");
@@ -62,7 +50,7 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
         candidate_id: candidate.id,
         content: formattedContent,
         category: category,
-        created_by: "System User",
+        created_by: "System User", // In a real app, this would be the logged-in user
       });
 
       if (error) throw error;
@@ -74,7 +62,6 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
       setIsDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["candidate-notes", candidate.id] });
     } catch (error) {
-      console.error("Error adding note:", error);
       toast({
         title: "Fehler",
         description: "Die Notiz konnte nicht erstellt werden.",
@@ -83,16 +70,8 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
     }
   };
 
-  if (error) {
-    return (
-      <div className="p-4 text-red-500">
-        Fehler beim Laden der Notizen. Bitte versuchen Sie es später erneut.
-      </div>
-    );
-  }
-
   if (isLoading) {
-    return <div className="p-4">Lädt Notizen...</div>;
+    return <div>Lädt Notizen...</div>;
   }
 
   return (
