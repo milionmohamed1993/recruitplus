@@ -8,6 +8,7 @@ interface EditableFieldProps {
   onChange: (value: string) => void;
   icon?: React.ReactNode;
   className?: string;
+  placeholder?: string;
 }
 
 export function EditableField({
@@ -17,6 +18,7 @@ export function EditableField({
   onChange,
   icon,
   className = "",
+  placeholder,
 }: EditableFieldProps) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
@@ -28,6 +30,7 @@ export function EditableField({
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             className="mt-1"
+            placeholder={placeholder}
           />
         ) : (
           <div className="text-sm text-muted-foreground">

@@ -1,6 +1,7 @@
 import { Building, Briefcase, Clock, Coins, FileText } from "lucide-react";
 import { EditableField } from "./EditableField";
 import { EditableSection } from "./EditableSection";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Candidate } from "@/types/database.types";
 
 interface ProfessionalInfoDisplayProps {
@@ -16,6 +17,12 @@ export function ProfessionalInfoDisplay({
   editedCandidate,
   setEditedCandidate,
 }: ProfessionalInfoDisplayProps) {
+  const workModels = [
+    { value: "onsite", label: "Vor Ort" },
+    { value: "remote", label: "Remote" },
+    { value: "hybrid", label: "Hybrid" },
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <EditableSection title="Aktuelle Position">
@@ -74,22 +81,47 @@ export function ProfessionalInfoDisplay({
           onChange={(value) => setEditedCandidate({ ...editedCandidate, notice_period: value })}
           icon={<Clock className="h-4 w-4" />}
         />
-        <EditableField
-          label="Bevorzugtes Arbeitsmodell"
-          value={editedCandidate.preferred_work_model || ""}
-          isEditing={isEditing}
-          onChange={(value) => setEditedCandidate({ ...editedCandidate, preferred_work_model: value })}
-          icon={<Building className="h-4 w-4" />}
-        />
+        <div className="flex items-center gap-3">
+          {isEditing ? (
+            <div className="flex-1">
+              <label className="text-sm font-medium mb-2 block">Bevorzugtes Arbeitsmodell</label>
+              <Select
+                value={editedCandidate.preferred_work_model || ""}
+                onValueChange={(value) =>
+                  setEditedCandidate({ ...editedCandidate, preferred_work_model: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Arbeitsmodell auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workModels.map((model) => (
+                    <SelectItem key={model.value} value={model.value}>
+                      {model.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            <div className="flex-1">
+              <div className="text-sm font-medium">Bevorzugtes Arbeitsmodell</div>
+              <div className="text-sm text-muted-foreground">
+                {workModels.find((model) => model.value === editedCandidate.preferred_work_model)?.label || "Nicht angegeben"}
+              </div>
+            </div>
+          )}
+        </div>
       </EditableSection>
 
       <EditableSection title="Gehaltsvorstellungen">
         <EditableField
-          label="Gehaltsvorstellung"
+          label="Gehaltsvorstellung (CHF)"
           value={editedCandidate.salary_expectation || ""}
           isEditing={isEditing}
           onChange={(value) => setEditedCandidate({ ...editedCandidate, salary_expectation: value })}
           icon={<Coins className="h-4 w-4" />}
+          placeholder="z.B. 120'000"
         />
         <EditableField
           label="Gehaltsflexibilität"
