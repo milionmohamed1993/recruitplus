@@ -57,7 +57,7 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
 
   const handleAddNote = async (category: string, answers: Record<string, string>) => {
     try {
-      // Format answers into a single string with questions and answers
+      // Store the answers object as a formatted string
       const formattedContent = Object.entries(answers)
         .map(([question, answer]) => `${question}\n${answer}`)
         .join("\n\n");
