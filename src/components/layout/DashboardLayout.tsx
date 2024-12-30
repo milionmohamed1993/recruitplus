@@ -19,7 +19,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
 
-  const SidebarContent = () => (
+  const NavigationContent = () => (
     <SidebarContent>
       <SidebarGroup>
         <div className="p-4">
@@ -63,7 +63,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </SheetTrigger>
             <SheetContent side="left" className="p-0">
               <Sidebar className="border-none">
-                <SidebarContent />
+                <NavigationContent />
               </Sidebar>
             </SheetContent>
           </Sheet>
@@ -81,7 +81,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex w-full">
       <Sidebar>
-        <SidebarContent />
+        <NavigationContent />
       </Sidebar>
       <main className="flex-1 p-6">{children}</main>
     </div>
