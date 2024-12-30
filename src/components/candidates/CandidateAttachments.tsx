@@ -145,15 +145,15 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       <CardContent>
         <Tabs defaultValue="resume" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="resume" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="resume" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Lebenslauf
             </TabsTrigger>
-            <TabsTrigger value="reference" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="reference" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Zeugnisse
             </TabsTrigger>
-            <TabsTrigger value="certificate" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="certificate" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Zertifikate
             </TabsTrigger>
