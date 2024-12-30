@@ -1,7 +1,6 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AddCandidateForm } from "@/components/candidates/AddCandidateForm";
-import { Button } from "@/components/ui/button";
-import { UserPlus } from "lucide-react";
+import { FormSubmitButton } from "@/components/candidates/forms/FormSubmitButton";
 
 export default function AddCandidate() {
   return (
@@ -14,16 +13,7 @@ export default function AddCandidate() {
               Fügen Sie einen neuen Kandidaten hinzu und analysieren Sie seinen Lebenslauf
             </p>
           </div>
-          <Button 
-            type="submit" 
-            form="add-candidate-form"
-            size="lg"
-            variant="default"
-            className="flex items-center gap-2 font-semibold shadow-md hover:shadow-lg transition-all text-black"
-          >
-            <UserPlus className="h-5 w-5" />
-            Kandidat erstellen
-          </Button>
+          <FormSubmitButton />
         </div>
         <AddCandidateForm />
       </div>
