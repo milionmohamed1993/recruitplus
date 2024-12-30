@@ -187,6 +187,7 @@ export type Database = {
         Row: {
           address: string | null
           birthdate: string | null
+          certificates: string[] | null
           company: string | null
           created_at: string
           department: string | null
@@ -199,10 +200,16 @@ export type Database = {
           location: string | null
           name: string
           nationality: string | null
+          notice_period: string | null
           phone: string | null
           position: string | null
+          preferred_work_model: string | null
+          project_experience: string | null
+          salary_expectation: string | null
+          salary_flexibility: string | null
           skill_ratings: Json | null
           skills: string[] | null
+          soft_skills: string[] | null
           source: string | null
           status: string | null
           university: string | null
@@ -213,6 +220,7 @@ export type Database = {
         Insert: {
           address?: string | null
           birthdate?: string | null
+          certificates?: string[] | null
           company?: string | null
           created_at?: string
           department?: string | null
@@ -225,10 +233,16 @@ export type Database = {
           location?: string | null
           name: string
           nationality?: string | null
+          notice_period?: string | null
           phone?: string | null
           position?: string | null
+          preferred_work_model?: string | null
+          project_experience?: string | null
+          salary_expectation?: string | null
+          salary_flexibility?: string | null
           skill_ratings?: Json | null
           skills?: string[] | null
+          soft_skills?: string[] | null
           source?: string | null
           status?: string | null
           university?: string | null
@@ -239,6 +253,7 @@ export type Database = {
         Update: {
           address?: string | null
           birthdate?: string | null
+          certificates?: string[] | null
           company?: string | null
           created_at?: string
           department?: string | null
@@ -251,10 +266,16 @@ export type Database = {
           location?: string | null
           name?: string
           nationality?: string | null
+          notice_period?: string | null
           phone?: string | null
           position?: string | null
+          preferred_work_model?: string | null
+          project_experience?: string | null
+          salary_expectation?: string | null
+          salary_flexibility?: string | null
           skill_ratings?: Json | null
           skills?: string[] | null
+          soft_skills?: string[] | null
           source?: string | null
           status?: string | null
           university?: string | null

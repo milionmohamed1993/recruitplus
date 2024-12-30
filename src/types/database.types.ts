@@ -45,6 +45,13 @@ export interface Candidate {
   skills: string[] | null;
   skill_ratings: { name: string; rating: number }[] | null;
   gender: string | null;
+  notice_period: string | null;
+  preferred_work_model: string | null;
+  salary_expectation: string | null;
+  salary_flexibility: string | null;
+  soft_skills: string[] | null;
+  project_experience: string | null;
+  certificates: string[] | null;
 }
 
 export interface Job {
