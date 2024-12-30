@@ -31,7 +31,7 @@ export function AddCandidateForm() {
   const [workReference, setWorkReference] = useState("");
   const [workReferenceEvaluation, setWorkReferenceEvaluation] = useState("");
   const [referenceFiles, setReferenceFiles] = useState<File[]>([]);
-  const [skills, setSkills] = useState<string[]>([]);
+  const [skills, setSkills] = useState<{ name: string; rating: number }[]>([]);
 
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -119,7 +119,8 @@ export function AddCandidateForm() {
           status: "new",
           work_reference: workReference,
           work_reference_evaluation: workReferenceEvaluation,
-          skills,
+          skills: skills.map(skill => skill.name),
+          skill_ratings: skills
         })
         .select();
 
@@ -243,7 +244,10 @@ export function AddCandidateForm() {
 
         <div>
           <h3 className="text-lg font-medium mb-4 text-primary">Fähigkeiten</h3>
-          <SkillsInput skills={skills} setSkills={setSkills} />
+          <SkillsInput 
+            skills={skills} 
+            setSkills={setSkills}
+          />
         </div>
 
         <div>

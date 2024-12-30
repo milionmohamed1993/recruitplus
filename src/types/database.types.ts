@@ -43,6 +43,7 @@ export interface Candidate {
   work_reference: string | null;
   work_reference_evaluation: string | null;
   skills: string[] | null;
+  skill_ratings: { name: string; rating: number }[] | null;
 }
 
 export interface Job {

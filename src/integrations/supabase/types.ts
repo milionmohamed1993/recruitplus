@@ -153,6 +153,7 @@ export type Database = {
           nationality: string | null
           phone: string | null
           position: string | null
+          skill_ratings: Json | null
           skills: string[] | null
           source: string | null
           status: string | null
@@ -177,6 +178,7 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           position?: string | null
+          skill_ratings?: Json | null
           skills?: string[] | null
           source?: string | null
           status?: string | null
@@ -201,6 +203,7 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           position?: string | null
+          skill_ratings?: Json | null
           skills?: string[] | null
           source?: string | null
           status?: string | null
