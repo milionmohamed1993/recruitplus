@@ -204,6 +204,7 @@ export type Database = {
           phone: string | null
           position: string | null
           preferred_work_model: string | null
+          profile_photo_url: string | null
           project_experience: string | null
           salary_expectation: string | null
           salary_flexibility: string | null
@@ -237,6 +238,7 @@ export type Database = {
           phone?: string | null
           position?: string | null
           preferred_work_model?: string | null
+          profile_photo_url?: string | null
           project_experience?: string | null
           salary_expectation?: string | null
           salary_flexibility?: string | null
@@ -270,6 +272,7 @@ export type Database = {
           phone?: string | null
           position?: string | null
           preferred_work_model?: string | null
+          profile_photo_url?: string | null
           project_experience?: string | null
           salary_expectation?: string | null
           salary_flexibility?: string | null
