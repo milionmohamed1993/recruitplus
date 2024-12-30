@@ -18,6 +18,8 @@ import { analyzeResumeWithGPT } from "@/utils/openai";
 import { useQueryClient } from "@tanstack/react-query";
 import { ResumeUpload } from "./ResumeUpload";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface CandidateTimelineProps {
   candidate: Candidate;
@@ -28,6 +30,57 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 'bg-blue-100 border-blue-500 text-blue-700';
+      case 'screening':
+        return 'bg-yellow-100 border-yellow-500 text-yellow-700';
+      case 'interview':
+        return 'bg-purple-100 border-purple-500 text-purple-700';
+      case 'offer':
+        return 'bg-green-100 border-green-500 text-green-700';
+      case 'hired':
+        return 'bg-emerald-100 border-emerald-500 text-emerald-700';
+      default:
+        return 'bg-gray-100 border-gray-500 text-gray-700';
+    }
+  };
+
+  const getStatusProgress = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 20;
+      case 'screening':
+        return 40;
+      case 'interview':
+        return 60;
+      case 'offer':
+        return 80;
+      case 'hired':
+        return 100;
+      default:
+        return 0;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 'Neu';
+      case 'screening':
+        return 'Vorauswahl';
+      case 'interview':
+        return 'Interview';
+      case 'offer':
+        return 'Angebot';
+      case 'hired':
+        return 'Eingestellt';
+      default:
+        return status;
+    }
+  };
 
   const handleResumeAnalyzed = async (data: any) => {
     try {
@@ -126,6 +179,22 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-8">
+          {/* Pipeline Status */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Pipeline Status</h3>
+            <div className="p-4 bg-accent/20 rounded-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <Badge className={getStatusColor(candidate.status)}>
+                  {getStatusLabel(candidate.status)}
+                </Badge>
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Fortschritt</div>
+                <Progress value={getStatusProgress(candidate.status)} className="h-2" />
+              </div>
+            </div>
+          </div>
+
           <CurrentPosition 
             candidate={candidate} 
             onEntryClick={(entry) => {
