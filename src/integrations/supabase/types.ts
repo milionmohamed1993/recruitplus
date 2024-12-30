@@ -136,6 +136,48 @@ export type Database = {
           },
         ]
       }
+      candidate_notes: {
+        Row: {
+          candidate_id: number | null
+          category: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: number
+        }
+        Insert: {
+          candidate_id?: number | null
+          category: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: number
+        }
+        Update: {
+          candidate_id?: number | null
+          category?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_notes_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_candidate"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidate_work_history: {
         Row: {
           candidate_id: number | null
