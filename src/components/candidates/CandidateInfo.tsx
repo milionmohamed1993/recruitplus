@@ -8,6 +8,9 @@ import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import { GenderSelect } from "./GenderSelect";
 import type { Candidate } from "@/types/database.types";
+import { PersonalInfoDisplay } from "./info/PersonalInfoDisplay";
+import { ProfessionalInfoDisplay } from "./info/ProfessionalInfoDisplay";
+import { EducationInfoDisplay } from "./info/EducationInfoDisplay";
 
 interface CandidateInfoProps {
   candidate: Candidate;
@@ -77,56 +80,97 @@ export function CandidateInfo({ candidate }: CandidateInfoProps) {
           </div>
         )}
       </CardHeader>
-      <CardContent>
-        <div className="grid gap-4">
-          <div>
-            <div className="text-sm font-medium text-muted-foreground">Email</div>
-            {isEditing ? (
-              <Input
-                value={editedCandidate.email}
-                onChange={(e) =>
-                  setEditedCandidate({ ...editedCandidate, email: e.target.value })
-                }
-              />
-            ) : (
-              <div>{candidate.email}</div>
-            )}
-          </div>
-          <div>
-            <div className="text-sm font-medium text-muted-foreground">Position</div>
-            {isEditing ? (
-              <Input
-                value={editedCandidate.position || ""}
-                onChange={(e) =>
-                  setEditedCandidate({ ...editedCandidate, position: e.target.value })
-                }
-              />
-            ) : (
-              <div>{candidate.position}</div>
-            )}
-          </div>
-          <div>
-            <div className="text-sm font-medium text-muted-foreground">Geschlecht</div>
-            {isEditing ? (
-              <GenderSelect
-                value={editedCandidate.gender || 'other'}
-                onChange={(value) =>
-                  setEditedCandidate({ ...editedCandidate, gender: value })
-                }
-              />
-            ) : (
+
+      <div className="space-y-6">
+        <div>
+          <CardContent>
+            <div className="grid gap-4">
               <div>
-                {candidate.gender === 'male' ? 'Herr' :
-                 candidate.gender === 'female' ? 'Frau' : 'Andere'}
+                <div className="text-sm font-medium text-muted-foreground">Email</div>
+                {isEditing ? (
+                  <Input
+                    value={editedCandidate.email}
+                    onChange={(e) =>
+                      setEditedCandidate({ ...editedCandidate, email: e.target.value })
+                    }
+                  />
+                ) : (
+                  <div>{candidate.email}</div>
+                )}
               </div>
-            )}
-          </div>
-          <div>
-            <div className="text-sm font-medium text-muted-foreground">Status</div>
-            <Badge variant="secondary">{candidate.status}</Badge>
-          </div>
+              <div>
+                <div className="text-sm font-medium text-muted-foreground">Position</div>
+                {isEditing ? (
+                  <Input
+                    value={editedCandidate.position || ""}
+                    onChange={(e) =>
+                      setEditedCandidate({ ...editedCandidate, position: e.target.value })
+                    }
+                  />
+                ) : (
+                  <div>{candidate.position}</div>
+                )}
+              </div>
+              <div>
+                <div className="text-sm font-medium text-muted-foreground">Geschlecht</div>
+                {isEditing ? (
+                  <GenderSelect
+                    value={editedCandidate.gender || 'other'}
+                    onChange={(value) =>
+                      setEditedCandidate({ ...editedCandidate, gender: value })
+                    }
+                  />
+                ) : (
+                  <div>
+                    {candidate.gender === 'male' ? 'Herr' :
+                     candidate.gender === 'female' ? 'Frau' : 'Andere'}
+                  </div>
+                )}
+              </div>
+              <div>
+                <div className="text-sm font-medium text-muted-foreground">Status</div>
+                <Badge variant="secondary">{candidate.status}</Badge>
+              </div>
+            </div>
+          </CardContent>
         </div>
-      </CardContent>
+
+        <div>
+          <CardHeader>
+            <CardTitle className="text-lg">Persönliche Informationen</CardTitle>
+          </CardHeader>
+          <PersonalInfoDisplay
+            candidate={candidate}
+            isEditing={isEditing}
+            editedCandidate={editedCandidate}
+            setEditedCandidate={setEditedCandidate}
+          />
+        </div>
+
+        <div>
+          <CardHeader>
+            <CardTitle className="text-lg">Berufliche Informationen</CardTitle>
+          </CardHeader>
+          <ProfessionalInfoDisplay
+            candidate={candidate}
+            isEditing={isEditing}
+            editedCandidate={editedCandidate}
+            setEditedCandidate={setEditedCandidate}
+          />
+        </div>
+
+        <div>
+          <CardHeader>
+            <CardTitle className="text-lg">Ausbildung</CardTitle>
+          </CardHeader>
+          <EducationInfoDisplay
+            candidate={candidate}
+            isEditing={isEditing}
+            editedCandidate={editedCandidate}
+            setEditedCandidate={setEditedCandidate}
+          />
+        </div>
+      </div>
     </Card>
   );
 }
