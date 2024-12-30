@@ -1,6 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import { Briefcase } from "lucide-react";
 import { TimelineEntry } from "./TimelineEntry";
 import type { Candidate } from "@/types/database.types";
+import { supabase } from "@/lib/supabase";
 
 interface CurrentPositionProps {
   candidate: Candidate;
@@ -8,6 +10,21 @@ interface CurrentPositionProps {
 }
 
 export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProps) {
+  const { data: currentPosition } = useQuery({
+    queryKey: ["current-position", candidate.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("candidate_work_history")
+        .select("*")
+        .eq("candidate_id", candidate.id)
+        .eq("is_current", true)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   if (!candidate.position) return null;
 
   return (
@@ -16,7 +33,7 @@ export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProp
         id: 0,
         position: candidate.position,
         company: candidate.company || "",
-        start_date: new Date().toISOString(),
+        start_date: currentPosition?.start_date || new Date().toISOString(),
         is_current: true,
         description: "Aktuelle Position",
       }}
