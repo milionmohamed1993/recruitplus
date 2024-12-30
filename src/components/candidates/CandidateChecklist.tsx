@@ -11,6 +11,20 @@ interface CandidateChecklistProps {
   candidate: Candidate;
 }
 
+interface ChecklistItem {
+  id: number;
+  candidate_id: number;
+  category: string;
+  item: string;
+  completed: boolean;
+  completed_at: string | null;
+  completed_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+type ChecklistCategories = Record<string, ChecklistItem[]>;
+
 export function CandidateChecklist({ candidate }: CandidateChecklistProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -71,7 +85,7 @@ export function CandidateChecklist({ candidate }: CandidateChecklistProps) {
     return <div>Lädt Checkliste...</div>;
   }
 
-  const categories = checklistItems?.reduce((acc: Record<string, any[]>, item) => {
+  const categories = checklistItems?.reduce((acc: ChecklistCategories, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
     }
@@ -93,7 +107,7 @@ export function CandidateChecklist({ candidate }: CandidateChecklistProps) {
             <div key={category} className="mb-6 last:mb-0">
               <h3 className="font-medium mb-3">{category}</h3>
               <div className="space-y-2">
-                {items.map((item: any) => (
+                {items.map((item: ChecklistItem) => (
                   <div
                     key={item.id}
                     className="flex items-center justify-between p-3 bg-accent/20 rounded-lg"
