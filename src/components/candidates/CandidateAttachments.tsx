@@ -137,7 +137,7 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Dokumente</CardTitle>
         {hasUnsavedChanges && (
-          <Button onClick={handleSaveChanges} variant="default">
+          <Button onClick={handleSaveChanges} className="bg-primary text-primary-foreground hover:bg-primary/90">
             Änderungen speichern
           </Button>
         )}
