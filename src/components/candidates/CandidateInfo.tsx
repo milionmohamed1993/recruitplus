@@ -10,6 +10,7 @@ import { BasicInfoSection } from "./info/BasicInfoSection";
 import { PersonalInfoDisplay } from "./info/PersonalInfoDisplay";
 import { ProfessionalInfoDisplay } from "./info/ProfessionalInfoDisplay";
 import { EducationInfoDisplay } from "./info/EducationInfoDisplay";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface CandidateInfoProps {
   candidate: Candidate;
@@ -80,58 +81,51 @@ export function CandidateInfo({ candidate }: CandidateInfoProps) {
         )}
       </CardHeader>
 
-      <div className="space-y-6">
-        <CardContent>
-          <BasicInfoSection
-            candidate={candidate}
-            isEditing={isEditing}
-            editedCandidate={editedCandidate}
-            setEditedCandidate={setEditedCandidate}
-          />
-        </CardContent>
+      <CardContent>
+        <BasicInfoSection
+          candidate={candidate}
+          isEditing={isEditing}
+          editedCandidate={editedCandidate}
+          setEditedCandidate={setEditedCandidate}
+        />
 
-        <div>
-          <CardHeader>
-            <CardTitle className="text-lg">Persönliche Informationen</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <PersonalInfoDisplay
-              candidate={candidate}
-              isEditing={isEditing}
-              editedCandidate={editedCandidate}
-              setEditedCandidate={setEditedCandidate}
-            />
-          </CardContent>
-        </div>
+        <div className="mt-6">
+          <Tabs defaultValue="personal" className="w-full">
+            <TabsList className="w-full justify-start">
+              <TabsTrigger value="personal">Persönliche Informationen</TabsTrigger>
+              <TabsTrigger value="professional">Berufliche Informationen</TabsTrigger>
+              <TabsTrigger value="education">Ausbildung</TabsTrigger>
+            </TabsList>
 
-        <div>
-          <CardHeader>
-            <CardTitle className="text-lg">Berufliche Informationen</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProfessionalInfoDisplay
-              candidate={candidate}
-              isEditing={isEditing}
-              editedCandidate={editedCandidate}
-              setEditedCandidate={setEditedCandidate}
-            />
-          </CardContent>
-        </div>
+            <TabsContent value="personal" className="mt-4">
+              <PersonalInfoDisplay
+                candidate={candidate}
+                isEditing={isEditing}
+                editedCandidate={editedCandidate}
+                setEditedCandidate={setEditedCandidate}
+              />
+            </TabsContent>
 
-        <div>
-          <CardHeader>
-            <CardTitle className="text-lg">Ausbildung</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EducationInfoDisplay
-              candidate={candidate}
-              isEditing={isEditing}
-              editedCandidate={editedCandidate}
-              setEditedCandidate={setEditedCandidate}
-            />
-          </CardContent>
+            <TabsContent value="professional" className="mt-4">
+              <ProfessionalInfoDisplay
+                candidate={candidate}
+                isEditing={isEditing}
+                editedCandidate={editedCandidate}
+                setEditedCandidate={setEditedCandidate}
+              />
+            </TabsContent>
+
+            <TabsContent value="education" className="mt-4">
+              <EducationInfoDisplay
+                candidate={candidate}
+                isEditing={isEditing}
+                editedCandidate={editedCandidate}
+                setEditedCandidate={setEditedCandidate}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 }
