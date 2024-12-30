@@ -34,8 +34,8 @@ export function DocumentList({ documents, onPreview }: DocumentListProps) {
 
       if (dbError) throw dbError;
 
-      // Invalidate and refetch the documents query
-      queryClient.invalidateQueries({ queryKey: ["candidate-attachments"] });
+      // Invalidate and refetch the documents query immediately
+      await queryClient.invalidateQueries({ queryKey: ["candidate-attachments"] });
 
       toast({
         title: "Dokument gelöscht",

@@ -17,6 +17,7 @@ export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProp
   const [isEditing, setIsEditing] = useState(false);
   const [editedPosition, setEditedPosition] = useState(candidate.position || "");
   const [editedCompany, setEditedCompany] = useState(candidate.company || "");
+  const [editedStartDate, setEditedStartDate] = useState("");
   const queryClient = useQueryClient();
 
   const { data: currentPosition } = useQuery({
@@ -34,13 +35,18 @@ export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProp
         return null;
       }
       
+      if (data) {
+        setEditedStartDate(data.start_date || "");
+      }
+      
       return data;
     },
   });
 
   const handleSave = async () => {
     try {
-      const { error } = await supabase
+      // Update candidate info
+      const { error: candidateError } = await supabase
         .from("candidates")
         .update({
           position: editedPosition,
@@ -48,9 +54,37 @@ export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProp
         })
         .eq("id", candidate.id);
 
-      if (error) throw error;
+      if (candidateError) throw candidateError;
+
+      // Update or create work history entry
+      if (currentPosition) {
+        const { error: workHistoryError } = await supabase
+          .from("candidate_work_history")
+          .update({
+            position: editedPosition,
+            company: editedCompany,
+            start_date: editedStartDate,
+          })
+          .eq("id", currentPosition.id);
+
+        if (workHistoryError) throw workHistoryError;
+      } else {
+        const { error: createError } = await supabase
+          .from("candidate_work_history")
+          .insert({
+            candidate_id: candidate.id,
+            position: editedPosition,
+            company: editedCompany,
+            start_date: editedStartDate,
+            is_current: true,
+          });
+
+        if (createError) throw createError;
+      }
 
       queryClient.invalidateQueries({ queryKey: ["candidate", candidate.id] });
+      queryClient.invalidateQueries({ queryKey: ["current-position", candidate.id] });
+      
       toast({
         title: "Position aktualisiert",
         description: "Die aktuelle Position wurde erfolgreich aktualisiert.",
@@ -98,6 +132,15 @@ export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProp
               className="mt-1"
             />
           </div>
+          <div>
+            <label className="text-sm font-medium">Startdatum</label>
+            <Input
+              type="date"
+              value={editedStartDate}
+              onChange={(e) => setEditedStartDate(e.target.value)}
+              className="mt-1"
+            />
+          </div>
           <div className="flex justify-end gap-2">
             <Button
               variant="ghost"
@@ -105,6 +148,9 @@ export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProp
               onClick={() => {
                 setEditedPosition(candidate.position || "");
                 setEditedCompany(candidate.company || "");
+                if (currentPosition) {
+                  setEditedStartDate(currentPosition.start_date || "");
+                }
                 setIsEditing(false);
               }}
             >
@@ -124,7 +170,7 @@ export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProp
       {!isEditing && (
         <TimelineEntry
           entry={{
-            id: 0,
+            id: currentPosition?.id || 0,
             position: candidate.position || "",
             company: candidate.company || "",
             start_date: currentPosition?.start_date || new Date().toISOString(),
