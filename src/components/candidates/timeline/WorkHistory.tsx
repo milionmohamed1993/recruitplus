@@ -17,7 +17,8 @@ export function WorkHistory({ candidate, onEntryClick }: WorkHistoryProps) {
         .from("candidate_work_history")
         .select("*")
         .eq("candidate_id", candidate.id)
-        .order("start_date", { ascending: false });
+        .order("start_date", { ascending: false })
+        .limit(3);
 
       if (error) throw error;
       return data;

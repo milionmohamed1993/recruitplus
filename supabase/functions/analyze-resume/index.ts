@@ -16,13 +16,15 @@ serve(async (req) => {
   try {
     const { text, workReference } = await req.json();
     console.log('Analyzing resume text length:', text.length);
-    console.log('Work reference provided:', !!workReference);
 
-    const resumeSystemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen und Arbeitszeugnissen. 
+    const resumeSystemPrompt = `Du bist ein Experte im Analysieren von Lebensläufen. 
     Extrahiere die folgenden Informationen aus diesem Lebenslauf und formatiere sie exakt wie folgt.
     Wichtig: Entferne alle Kommas aus den Werten und gib nur die angeforderten Felder zurück.
-    Extrahiere auch eine Liste von maximal 20 relevanten Skills als Tags.
-    Achte besonders auf technische Skills Software-Skills und Soft-Skills.
+    
+    Extrahiere auch:
+    - Die letzten 3 Arbeitspositionen mit genauen Daten
+    - Die letzten 3 Bildungseinrichtungen/Ausbildungen mit genauen Daten
+    - Eine Liste von maximal 20 relevanten Skills als Tags
     
     WICHTIG: Gib deine Antwort NUR als valides JSON zurück ohne zusätzlichen Text davor oder danach.
     
@@ -43,17 +45,28 @@ serve(async (req) => {
         "industry": "Branche",
         "experience": "Berufserfahrung in Jahren (nur Zahl)"
       },
+      "workHistory": [
+        {
+          "position": "Position",
+          "company": "Firma",
+          "startDate": "YYYY-MM-DD",
+          "endDate": "YYYY-MM-DD oder null wenn aktuell",
+          "isCurrent": true/false,
+          "description": "Beschreibung der Tätigkeit"
+        }
+      ],
       "education": {
         "degree": "Höchster Abschluss",
         "university": "Name der Universität",
-        "details": {
-          "graduationYear": "Abschlussjahr",
-          "fieldOfStudy": "Studienfach",
-          "grade": "Note falls verfügbar",
-          "additionalCertifications": ["Liste von zusätzlichen Zertifizierungen"],
-          "specialization": "Spezialisierung oder Schwerpunkte",
-          "achievements": ["Besondere akademische Leistungen"]
-        }
+        "educationHistory": [
+          {
+            "institution": "Name der Institution",
+            "degree": "Art des Abschlusses",
+            "startDate": "YYYY-MM-DD",
+            "endDate": "YYYY-MM-DD",
+            "fieldOfStudy": "Studienfach/Fachrichtung"
+          }
+        ]
       },
       "skills": [
         "Skill1",
