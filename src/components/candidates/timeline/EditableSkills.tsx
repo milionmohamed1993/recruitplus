@@ -45,21 +45,23 @@ export function EditableSkills({ candidate }: EditableSkillsProps) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative space-y-4">
       {!editingSkills && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-0 top-0"
-          onClick={() => setEditingSkills(true)}
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
+        <div className="flex justify-between items-center">
+          <h3 className="font-medium">Fähigkeiten</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setEditingSkills(true)}
+            className="p-2 hover:bg-accent"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </div>
       )}
       
       {editingSkills ? (
         <div className="space-y-4">
-          <h3 className="font-medium">Fähigkeiten bearbeiten</h3>
           <SkillsInput skills={skills} setSkills={setSkills} />
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => {
