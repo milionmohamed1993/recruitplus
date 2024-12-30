@@ -19,12 +19,14 @@ export function DocumentList({ documents, onPreview }: DocumentListProps) {
 
   const handleDelete = async (document: any) => {
     try {
+      // First, delete from storage
       const { error: storageError } = await supabase.storage
         .from("attachments")
         .remove([document.file_path]);
 
       if (storageError) throw storageError;
 
+      // Then, delete from database
       const { error: dbError } = await supabase
         .from("candidate_attachments")
         .delete()
@@ -32,6 +34,7 @@ export function DocumentList({ documents, onPreview }: DocumentListProps) {
 
       if (dbError) throw dbError;
 
+      // Invalidate and refetch the documents query
       queryClient.invalidateQueries({ queryKey: ["candidate-attachments"] });
 
       toast({

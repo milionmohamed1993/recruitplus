@@ -2,16 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface DocumentUploadProps {
   candidateId: number;
   category: 'reference' | 'resume' | 'certificate';
+  onUpload: (file: any) => void;
 }
 
-export function DocumentUpload({ candidateId, category }: DocumentUploadProps) {
-  const queryClient = useQueryClient();
-
+export function DocumentUpload({ candidateId, category, onUpload }: DocumentUploadProps) {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -24,23 +22,19 @@ export function DocumentUpload({ candidateId, category }: DocumentUploadProps) {
 
       if (uploadError) throw uploadError;
 
-      const { error: dbError } = await supabase
-        .from("candidate_attachments")
-        .insert({
-          candidate_id: candidateId,
-          file_name: file.name,
-          file_path: fileName,
-          file_type: file.type,
-          category: category // Add the category when inserting
-        });
-
-      if (dbError) throw dbError;
-
-      queryClient.invalidateQueries({ queryKey: ["candidate-attachments", candidateId] });
+      // Instead of inserting directly to the database,
+      // we pass the file data to the parent component
+      onUpload({
+        candidate_id: candidateId,
+        file_name: file.name,
+        file_path: fileName,
+        file_type: file.type,
+        category: category
+      });
       
       toast({
         title: "Dokument hochgeladen",
-        description: "Das Dokument wurde erfolgreich hochgeladen.",
+        description: "Klicken Sie auf 'Speichern' um die Änderungen zu übernehmen.",
       });
     } catch (error) {
       console.error("Error uploading document:", error);

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -13,6 +13,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DocumentList } from "./documents/DocumentList";
 import { DocumentUpload } from "./documents/DocumentUpload";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface CandidateAttachmentsProps {
   candidate: Candidate;
@@ -34,6 +36,9 @@ interface CandidateAttachment {
 export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
   const [selectedFile, setSelectedFile] = useState<CandidateAttachment | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<CandidateAttachment[]>([]);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: attachments } = useQuery({
     queryKey: ["candidate-attachments", candidate.id],
@@ -63,14 +68,56 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
     setPreviewUrl(data.signedUrl);
   };
 
+  const handleFileUpload = (newFile: CandidateAttachment) => {
+    setUploadedFiles(prev => [...prev, newFile]);
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      // Save all uploaded files
+      for (const file of uploadedFiles) {
+        const { error } = await supabase
+          .from("candidate_attachments")
+          .insert(file);
+
+        if (error) throw error;
+      }
+
+      // Clear uploaded files after saving
+      setUploadedFiles([]);
+      
+      // Refresh the documents list
+      queryClient.invalidateQueries({ queryKey: ["candidate-attachments", candidate.id] });
+
+      toast({
+        title: "Änderungen gespeichert",
+        description: "Die Dokumente wurden erfolgreich gespeichert.",
+      });
+    } catch (error) {
+      console.error("Error saving changes:", error);
+      toast({
+        title: "Fehler",
+        description: "Die Änderungen konnten nicht gespeichert werden.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const renderDocumentSection = (category: DocumentCategory) => {
-    const categoryAttachments = attachments?.filter(
-      (attachment: CandidateAttachment) => attachment.category === category
-    ) || [];
+    const categoryAttachments = [
+      ...(attachments?.filter(
+        (attachment: CandidateAttachment) => attachment.category === category
+      ) || []),
+      ...uploadedFiles.filter(file => file.category === category)
+    ];
 
     return (
       <>
-        <DocumentUpload candidateId={candidate.id} category={category} />
+        <DocumentUpload 
+          candidateId={candidate.id} 
+          category={category}
+          onUpload={handleFileUpload}
+        />
         <DocumentList 
           documents={categoryAttachments}
           onPreview={handlePreview}
@@ -79,12 +126,19 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
     );
   };
 
+  const hasUnsavedChanges = uploadedFiles.length > 0;
+
   if (!attachments?.length && !candidate.id) return null;
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Dokumente</CardTitle>
+        {hasUnsavedChanges && (
+          <Button onClick={handleSaveChanges}>
+            Änderungen speichern
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="resume" className="w-full">
