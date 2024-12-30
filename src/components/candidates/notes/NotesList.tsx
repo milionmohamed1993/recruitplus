@@ -26,6 +26,18 @@ export function NotesList({ notes }: NotesListProps) {
     });
   };
 
+  const formatContent = (content: string) => {
+    return content.split('\n\n').map((block, index) => {
+      const [question, answer] = block.split('\n');
+      return (
+        <div key={index} className="mb-2">
+          <div className="font-bold">{question}</div>
+          <div>{answer}</div>
+        </div>
+      );
+    });
+  };
+
   // Group notes by category
   const notesByCategory = notes.reduce((acc, note) => {
     if (!acc[note.category]) {
@@ -74,7 +86,9 @@ export function NotesList({ notes }: NotesListProps) {
                     {formatDate(note.created_at)} - {note.created_by}
                   </div>
                 </div>
-                <div className="text-sm whitespace-pre-wrap">{note.content}</div>
+                <div className="text-sm">
+                  {formatContent(note.content)}
+                </div>
               </div>
             ))}
           </div>
