@@ -44,6 +44,7 @@ export interface Candidate {
   work_reference_evaluation: string | null;
   skills: string[] | null;
   skill_ratings: { name: string; rating: number }[] | null;
+  gender: string | null;
 }
 
 export interface Job {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { PersonalInfoFields } from "./PersonalInfoFields";
+import { PersonalInfoSection } from "./PersonalInfoSection";
 import { ProfessionalInfoFields } from "./ProfessionalInfoFields";
 import { WorkReferenceFields } from "./WorkReferenceFields";
 import { ResumeUpload } from "./ResumeUpload";
@@ -17,6 +17,7 @@ export function AddCandidateForm() {
   const [address, setAddress] = useState("");
   const [nationality, setNationality] = useState("");
   const [location, setLocation] = useState("");
+  const [gender, setGender] = useState("other");
 
   // Professional Information
   const [position, setPosition] = useState("");
@@ -120,7 +121,8 @@ export function AddCandidateForm() {
           work_reference: workReference,
           work_reference_evaluation: workReferenceEvaluation,
           skills: skills.map(skill => skill.name),
-          skill_ratings: skills
+          skill_ratings: skills,
+          gender
         })
         .select();
 
@@ -204,7 +206,7 @@ export function AddCandidateForm() {
       <div className="space-y-6 bg-white rounded-lg shadow-lg p-6">
         <div>
           <h3 className="text-lg font-medium mb-4 text-primary">Persönliche Informationen</h3>
-          <PersonalInfoFields
+          <PersonalInfoSection
             name={name}
             setName={setName}
             email={email}
@@ -219,6 +221,8 @@ export function AddCandidateForm() {
             setNationality={setNationality}
             location={location}
             setLocation={setLocation}
+            gender={gender}
+            setGender={setGender}
           />
         </div>
 

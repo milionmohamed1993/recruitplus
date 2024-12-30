@@ -190,6 +190,7 @@ export type Database = {
           education: string | null
           email: string
           experience: string | null
+          gender: string | null
           id: number
           industry: string | null
           location: string | null
@@ -215,6 +216,7 @@ export type Database = {
           education?: string | null
           email: string
           experience?: string | null
+          gender?: string | null
           id?: number
           industry?: string | null
           location?: string | null
@@ -240,6 +242,7 @@ export type Database = {
           education?: string | null
           email?: string
           experience?: string | null
+          gender?: string | null
           id?: number
           industry?: string | null
           location?: string | null

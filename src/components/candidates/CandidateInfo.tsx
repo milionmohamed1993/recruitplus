@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Edit2, Save, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { GenderSelect } from "./GenderSelect";
 import type { Candidate } from "@/types/database.types";
 
 interface CandidateInfoProps {
@@ -102,6 +103,22 @@ export function CandidateInfo({ candidate }: CandidateInfoProps) {
               />
             ) : (
               <div>{candidate.position}</div>
+            )}
+          </div>
+          <div>
+            <div className="text-sm font-medium text-muted-foreground">Geschlecht</div>
+            {isEditing ? (
+              <GenderSelect
+                value={editedCandidate.gender || 'other'}
+                onChange={(value) =>
+                  setEditedCandidate({ ...editedCandidate, gender: value })
+                }
+              />
+            ) : (
+              <div>
+                {candidate.gender === 'male' ? 'Herr' :
+                 candidate.gender === 'female' ? 'Frau' : 'Andere'}
+              </div>
             )}
           </div>
           <div>
