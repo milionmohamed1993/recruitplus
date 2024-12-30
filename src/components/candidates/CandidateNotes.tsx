@@ -28,15 +28,31 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
   const { data: notes, isLoading } = useQuery({
     queryKey: ["candidate-notes", candidate.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("candidate_notes")
-        .select("*")
-        .eq("candidate_id", candidate.id)
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("candidate_notes")
+          .select("*")
+          .eq("candidate_id", candidate.id)
+          .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data;
+        if (error) {
+          console.error("Error fetching notes:", error);
+          toast({
+            title: "Error",
+            description: "Could not load notes. Please try again.",
+            variant: "destructive",
+          });
+          throw error;
+        }
+
+        return data || [];
+      } catch (error) {
+        console.error("Error in notes query:", error);
+        throw error;
+      }
     },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const handleAddNote = async (category: string, answers: Record<string, string>) => {
@@ -62,6 +78,7 @@ export function CandidateNotes({ candidate }: CandidateNotesProps) {
       setIsDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["candidate-notes", candidate.id] });
     } catch (error) {
+      console.error("Error adding note:", error);
       toast({
         title: "Fehler",
         description: "Die Notiz konnte nicht erstellt werden.",
