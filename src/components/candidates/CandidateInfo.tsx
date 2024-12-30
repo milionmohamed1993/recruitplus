@@ -43,7 +43,17 @@ export function CandidateInfo({ candidate }: CandidateInfoProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{candidate.name}</CardTitle>
+        {isEditing ? (
+          <Input
+            value={editedCandidate.name}
+            onChange={(e) =>
+              setEditedCandidate({ ...editedCandidate, name: e.target.value })
+            }
+            className="max-w-[200px]"
+          />
+        ) : (
+          <CardTitle>{candidate.name}</CardTitle>
+        )}
         {!isEditing ? (
           <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
             <Edit2 className="h-4 w-4" />
