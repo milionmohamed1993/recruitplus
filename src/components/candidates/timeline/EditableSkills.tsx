@@ -14,7 +14,9 @@ interface EditableSkillsProps {
 
 export function EditableSkills({ candidate }: EditableSkillsProps) {
   const [editingSkills, setEditingSkills] = useState(false);
-  const [skills, setSkills] = useState<string[]>(candidate.skills || []);
+  const [skills, setSkills] = useState<{ name: string; rating: number }[]>(
+    candidate.skills?.map((skill) => ({ name: skill, rating: 3 })) || []
+  );
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -22,7 +24,7 @@ export function EditableSkills({ candidate }: EditableSkillsProps) {
     try {
       const { error } = await supabase
         .from("candidates")
-        .update({ skills })
+        .update({ skills: skills.map(skill => skill.name) })
         .eq("id", candidate.id);
 
       if (error) throw error;
@@ -65,7 +67,7 @@ export function EditableSkills({ candidate }: EditableSkillsProps) {
           <SkillsInput skills={skills} setSkills={setSkills} />
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => {
-              setSkills(candidate.skills || []);
+              setSkills(candidate.skills?.map(skill => ({ name: skill, rating: 3 })) || []);
               setEditingSkills(false);
             }}>
               Abbrechen
@@ -77,7 +79,7 @@ export function EditableSkills({ candidate }: EditableSkillsProps) {
         </div>
       ) : (
         candidate.skills && candidate.skills.length > 0 && (
-          <SkillsSection skills={candidate.skills} />
+          <SkillsSection skills={skills.map(skill => skill.name)} />
         )
       )}
     </div>

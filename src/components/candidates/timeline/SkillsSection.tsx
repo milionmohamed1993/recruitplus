@@ -29,7 +29,6 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
         <Award className="h-4 w-4 text-muted-foreground" />
       </div>
       <div className="space-y-4">
-        <div className="font-medium">Fähigkeiten</div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {skills.map((skill, index) => (
             <div 
