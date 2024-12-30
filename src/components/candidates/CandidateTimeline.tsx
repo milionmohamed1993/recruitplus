@@ -50,6 +50,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                 position: candidate.position,
                 company: candidate.company || "",
                 start_date: new Date().toISOString(),
+                is_current: true,
                 description: "Aktuelle Position",
               }}
               icon={<Briefcase className="h-4 w-4 text-primary" />}
@@ -72,7 +73,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                 setDialogOpen(true);
               }}
             />
-          ))}
+          )}
 
           {/* Education */}
           {candidate.education && (
