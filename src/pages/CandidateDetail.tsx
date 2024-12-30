@@ -7,11 +7,12 @@ import { CandidateTimeline } from "@/components/candidates/CandidateTimeline";
 import { CandidateAttachments } from "@/components/candidates/CandidateAttachments";
 import { CandidateNotes } from "@/components/candidates/CandidateNotes";
 import { Button } from "@/components/ui/button";
-import { Save, User, Briefcase, FileText, GraduationCap, MessageSquare } from "lucide-react";
+import { Save, User, Briefcase, FileText, GraduationCap, MessageSquare, Menu } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function CandidateDetail() {
   const { id } = useParams();

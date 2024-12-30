@@ -15,6 +15,7 @@ import { DocumentList } from "./documents/DocumentList";
 import { DocumentUpload } from "./documents/DocumentUpload";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CandidateAttachmentsProps {
   candidate: Candidate;
@@ -39,6 +40,7 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
   const [uploadedFiles, setUploadedFiles] = useState<CandidateAttachment[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const { data: attachments, refetch } = useQuery({
     queryKey: ["candidate-attachments", candidate.id],
@@ -119,7 +121,7 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
     ];
 
     return (
-      <>
+      <div className={isMobile ? 'space-y-4' : ''}>
         <DocumentUpload 
           candidateId={candidate.id} 
           category={category}
@@ -129,7 +131,7 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
           documents={categoryAttachments}
           onPreview={handlePreview}
         />
-      </>
+      </div>
     );
   };
 
@@ -139,12 +141,12 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <CardTitle>Dokumente</CardTitle>
         {hasUnsavedChanges && (
           <Button 
             onClick={handleSaveChanges} 
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2 rounded-md shadow-sm"
+            className="w-full md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2 rounded-md shadow-sm"
           >
             Änderungen speichern
           </Button>
@@ -152,7 +154,7 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="resume" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-3'}`}>
             <TabsTrigger value="resume" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Lebenslauf
@@ -161,18 +163,20 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
               <FileText className="h-4 w-4" />
               Zeugnisse
             </TabsTrigger>
-            <TabsTrigger value="certificate" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Zertifikate
-            </TabsTrigger>
+            {!isMobile && (
+              <TabsTrigger value="certificate" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Zertifikate
+              </TabsTrigger>
+            )}
           </TabsList>
-          <TabsContent value="resume">
+          <TabsContent value="resume" className="mt-6">
             {renderDocumentSection('resume')}
           </TabsContent>
-          <TabsContent value="reference">
+          <TabsContent value="reference" className="mt-6">
             {renderDocumentSection('reference')}
           </TabsContent>
-          <TabsContent value="certificate">
+          <TabsContent value="certificate" className="mt-6">
             {renderDocumentSection('certificate')}
           </TabsContent>
         </Tabs>
