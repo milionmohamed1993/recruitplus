@@ -49,7 +49,6 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
         .eq("candidate_id", candidate.id);
 
       if (error) throw error;
-
       return data;
     },
   });
@@ -78,7 +77,10 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       for (const file of uploadedFiles) {
         const { error } = await supabase
           .from("candidate_attachments")
-          .insert(file);
+          .insert({
+            ...file,
+            candidate_id: candidate.id
+          });
 
         if (error) throw error;
       }
@@ -135,7 +137,7 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Dokumente</CardTitle>
         {hasUnsavedChanges && (
-          <Button onClick={handleSaveChanges}>
+          <Button onClick={handleSaveChanges} variant="default">
             Änderungen speichern
           </Button>
         )}
