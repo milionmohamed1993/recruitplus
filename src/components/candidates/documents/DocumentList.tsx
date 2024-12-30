@@ -37,7 +37,7 @@ export function DocumentList({ documents, onPreview }: DocumentListProps) {
       // Force an immediate refetch of the documents
       await queryClient.invalidateQueries({ 
         queryKey: ["candidate-attachments"],
-        refetchType: 'all'
+        exact: true
       });
 
       toast({
