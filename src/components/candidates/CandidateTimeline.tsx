@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import type { Candidate } from "@/types/database.types";
@@ -18,6 +18,12 @@ import { analyzeResumeWithGPT } from "@/utils/openai";
 import { useQueryClient } from "@tanstack/react-query";
 import { ResumeUpload } from "./ResumeUpload";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface CandidateTimelineProps {
   candidate: Candidate;
@@ -125,33 +131,61 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-8">
-          <CurrentPosition 
-            candidate={candidate} 
-            onEntryClick={(entry) => {
-              setSelectedEntry(entry);
-              setDialogOpen(true);
-            }}
-          />
+        <Accordion type="multiple" className="space-y-4">
+          <AccordionItem value="current-position" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              Aktuelle Position
+            </AccordionTrigger>
+            <AccordionContent>
+              <CurrentPosition 
+                candidate={candidate} 
+                onEntryClick={(entry) => {
+                  setSelectedEntry(entry);
+                  setDialogOpen(true);
+                }}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-          <WorkHistory 
-            candidate={candidate} 
-            onEntryClick={(entry) => {
-              setSelectedEntry(entry);
-              setDialogOpen(true);
-            }}
-          />
+          <AccordionItem value="work-history" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              Berufserfahrung
+            </AccordionTrigger>
+            <AccordionContent>
+              <WorkHistory 
+                candidate={candidate} 
+                onEntryClick={(entry) => {
+                  setSelectedEntry(entry);
+                  setDialogOpen(true);
+                }}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-          <Education 
-            candidate={candidate} 
-            onEntryClick={(entry) => {
-              setSelectedEntry(entry);
-              setDialogOpen(true);
-            }}
-          />
+          <AccordionItem value="education" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              Ausbildung
+            </AccordionTrigger>
+            <AccordionContent>
+              <Education 
+                candidate={candidate} 
+                onEntryClick={(entry) => {
+                  setSelectedEntry(entry);
+                  setDialogOpen(true);
+                }}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-          <EditableSkills candidate={candidate} />
-        </div>
+          <AccordionItem value="skills" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              Fähigkeiten
+            </AccordionTrigger>
+            <AccordionContent>
+              <EditableSkills candidate={candidate} />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </CardContent>
 
       {/* Detail Dialog */}
