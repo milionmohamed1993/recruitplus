@@ -6,10 +6,11 @@ import { CandidateApplications } from "@/components/candidates/CandidateApplicat
 import { CandidateTimeline } from "@/components/candidates/CandidateTimeline";
 import { CandidateAttachments } from "@/components/candidates/CandidateAttachments";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Save, User, Briefcase, FileText, GraduationCap } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useQueryClient } from "@tanstack/react-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CandidateDetail() {
   const { id } = useParams();
@@ -31,7 +32,6 @@ export default function CandidateDetail() {
         description: "Die Kandidateninformationen wurden erfolgreich aktualisiert.",
       });
 
-      // Refresh the candidate data
       queryClient.invalidateQueries({ queryKey: ["candidate", Number(id)] });
     } catch (error) {
       toast({
@@ -67,21 +67,51 @@ export default function CandidateDetail() {
   return (
     <DashboardLayout>
       <div className="container p-6">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="space-y-6">
-            <CandidateInfo candidate={candidate} />
-            <CandidateTimeline candidate={candidate} />
-            <div className="flex justify-start mt-6">
-              <Button onClick={handleSave} className="w-full lg:w-auto">
-                <Save className="mr-2 h-4 w-4" />
-                Speichern
-              </Button>
-            </div>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">{candidate.name}</h1>
+            <Button onClick={handleSave}>
+              <Save className="mr-2 h-4 w-4" />
+              Speichern
+            </Button>
           </div>
-          <div className="space-y-6">
-            <CandidateApplications candidateId={candidate.id} />
-            <CandidateAttachments candidate={candidate} />
-          </div>
+
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Profil
+              </TabsTrigger>
+              <TabsTrigger value="applications" className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                Bewerbungen
+              </TabsTrigger>
+              <TabsTrigger value="timeline" className="flex items-center gap-2">
+                <GraduationCap className="h-4 w-4" />
+                Werdegang
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Dokumente
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="profile" className="mt-6">
+              <CandidateInfo candidate={candidate} />
+            </TabsContent>
+
+            <TabsContent value="applications" className="mt-6">
+              <CandidateApplications candidateId={candidate.id} />
+            </TabsContent>
+
+            <TabsContent value="timeline" className="mt-6">
+              <CandidateTimeline candidate={candidate} />
+            </TabsContent>
+
+            <TabsContent value="documents" className="mt-6">
+              <CandidateAttachments candidate={candidate} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </DashboardLayout>
