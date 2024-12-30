@@ -1,5 +1,7 @@
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { GenderSelect } from "./GenderSelect";
+import { SourceSelect } from "./SourceSelect";
 
 interface PersonalInfoSectionProps {
   name: string;
@@ -18,6 +20,8 @@ interface PersonalInfoSectionProps {
   setLocation: (value: string) => void;
   gender: string;
   setGender: (value: string) => void;
+  source: string;
+  setSource: (value: string) => void;
 }
 
 export function PersonalInfoSection({
@@ -37,71 +41,90 @@ export function PersonalInfoSection({
   setLocation,
   gender,
   setGender,
+  source,
+  setSource,
 }: PersonalInfoSectionProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <div>
-        <label className="block text-sm font-medium mb-2">Name</label>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Name</Label>
         <Input
-          required
+          id="name"
+          placeholder="Name eingeben"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Max Mustermann"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">E-Mail</label>
+
+      <div className="space-y-2">
+        <Label htmlFor="email">E-Mail</Label>
         <Input
-          required
+          id="email"
           type="email"
+          placeholder="E-Mail eingeben"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="max@beispiel.de"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Telefon</label>
+
+      <div className="space-y-2">
+        <Label htmlFor="phone">Telefon</Label>
         <Input
+          id="phone"
+          placeholder="Telefonnummer eingeben"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="+49 123 456789"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Geburtsdatum</label>
+
+      <div className="space-y-2">
+        <Label htmlFor="birthdate">Geburtsdatum</Label>
         <Input
+          id="birthdate"
           type="date"
           value={birthdate}
           onChange={(e) => setBirthdate(e.target.value)}
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Adresse</label>
+
+      <div className="space-y-2">
+        <Label htmlFor="address">Adresse</Label>
         <Input
+          id="address"
+          placeholder="Adresse eingeben"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Straße, PLZ, Stadt"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Nationalität</label>
+
+      <div className="space-y-2">
+        <Label htmlFor="nationality">Nationalität</Label>
         <Input
+          id="nationality"
+          placeholder="Nationalität eingeben"
           value={nationality}
           onChange={(e) => setNationality(e.target.value)}
-          placeholder="z.B. Deutsch"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Standort</label>
+
+      <div className="space-y-2">
+        <Label htmlFor="location">Standort</Label>
         <Input
+          id="location"
+          placeholder="Standort eingeben"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          placeholder="z.B. Berlin"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-2">Geschlecht</label>
+
+      <div className="space-y-2">
+        <Label htmlFor="gender">Geschlecht</Label>
         <GenderSelect value={gender} onChange={setGender} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="source">Quelle</Label>
+        <SourceSelect value={source} onChange={setSource} />
       </div>
     </div>
   );

@@ -18,6 +18,7 @@ export function AddCandidateForm() {
   const [nationality, setNationality] = useState("");
   const [location, setLocation] = useState("");
   const [gender, setGender] = useState("other");
+  const [source, setSource] = useState("Direct");
 
   // Professional Information
   const [position, setPosition] = useState("");
@@ -55,6 +56,7 @@ export function AddCandidateForm() {
       setAddress(data.personalInfo.address || "");
       setNationality(data.personalInfo.nationality || "");
       setLocation(data.personalInfo.location || "");
+      setSource(data.personalInfo.source || "Direct");
     }
 
     if (data.professionalInfo) {
@@ -122,7 +124,8 @@ export function AddCandidateForm() {
           work_reference_evaluation: workReferenceEvaluation,
           skills: skills.map(skill => skill.name),
           skill_ratings: skills,
-          gender
+          gender,
+          source
         })
         .select();
 
@@ -223,6 +226,8 @@ export function AddCandidateForm() {
             setLocation={setLocation}
             gender={gender}
             setGender={setGender}
+            source={source}
+            setSource={setSource}
           />
         </div>
 
