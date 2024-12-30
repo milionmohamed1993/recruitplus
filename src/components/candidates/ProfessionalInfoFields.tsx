@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { EducationLevelSelect } from "./EducationLevelSelect";
 
 interface ProfessionalInfoFieldsProps {
   position: string;
@@ -38,18 +39,17 @@ export function ProfessionalInfoFields({
       <div>
         <label className="block text-sm font-medium mb-2">Position</label>
         <Input
-          required
           value={position}
           onChange={(e) => setPosition(e.target.value)}
-          placeholder="z.B. Software Entwickler"
+          placeholder="z.B. Software Engineer"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-2">Firma</label>
+        <label className="block text-sm font-medium mb-2">Unternehmen</label>
         <Input
           value={company}
           onChange={(e) => setCompany(e.target.value)}
-          placeholder="Aktueller Arbeitgeber"
+          placeholder="Aktuelles Unternehmen"
         />
       </div>
       <div>
@@ -57,7 +57,7 @@ export function ProfessionalInfoFields({
         <Input
           value={department}
           onChange={(e) => setDepartment(e.target.value)}
-          placeholder="z.B. IT"
+          placeholder="z.B. Engineering"
         />
       </div>
       <div>
@@ -77,19 +77,15 @@ export function ProfessionalInfoFields({
         />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-2">Ausbildung</label>
-        <Input
-          value={education}
-          onChange={(e) => setEducation(e.target.value)}
-          placeholder="z.B. Master"
-        />
+        <label className="block text-sm font-medium mb-2">Höchste Ausbildung</label>
+        <EducationLevelSelect value={education} onChange={setEducation} />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-2">Universität</label>
+        <label className="block text-sm font-medium mb-2">Universität/Institution</label>
         <Input
           value={university}
           onChange={(e) => setUniversity(e.target.value)}
-          placeholder="Name der Universität"
+          placeholder="Name der Institution"
         />
       </div>
     </div>
