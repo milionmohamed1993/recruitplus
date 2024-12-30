@@ -6,9 +6,8 @@ import { CandidateApplications } from "@/components/candidates/CandidateApplicat
 import { CandidateTimeline } from "@/components/candidates/CandidateTimeline";
 import { CandidateAttachments } from "@/components/candidates/CandidateAttachments";
 import { CandidateNotes } from "@/components/candidates/CandidateNotes";
-import { CandidateChecklist } from "@/components/candidates/checklist/CandidateChecklist";
 import { Button } from "@/components/ui/button";
-import { Save, User, Briefcase, FileText, GraduationCap, MessageSquare, CheckSquare } from "lucide-react";
+import { Save, User, Briefcase, FileText, GraduationCap, MessageSquare } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useQueryClient } from "@tanstack/react-query";
@@ -79,7 +78,7 @@ export default function CandidateDetail() {
           </div>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Profil
@@ -99,10 +98,6 @@ export default function CandidateDetail() {
               <TabsTrigger value="notes" className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" />
                 Notizen
-              </TabsTrigger>
-              <TabsTrigger value="checklist" className="flex items-center gap-2">
-                <CheckSquare className="h-4 w-4" />
-                Checkliste
               </TabsTrigger>
             </TabsList>
 
@@ -124,10 +119,6 @@ export default function CandidateDetail() {
 
             <TabsContent value="notes" className="mt-6">
               <CandidateNotes candidate={candidate} />
-            </TabsContent>
-
-            <TabsContent value="checklist" className="mt-6">
-              <CandidateChecklist candidate={candidate} />
             </TabsContent>
           </Tabs>
         </div>
