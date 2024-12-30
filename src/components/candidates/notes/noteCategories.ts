@@ -43,4 +43,11 @@ export const noteCategories = {
       "Potenzial für zukünftige Positionen:",
     ],
   },
+  custom_note: {
+    label: "Individuelle Notiz",
+    questions: [
+      "Titel der Notiz:",
+      "Notizinhalt:",
+    ],
+  },
 };

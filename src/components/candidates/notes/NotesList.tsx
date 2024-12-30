@@ -1,4 +1,6 @@
 import { noteCategories } from "./noteCategories";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StickyNote } from "lucide-react";
 
 interface Note {
   id: number;
@@ -24,26 +26,60 @@ export function NotesList({ notes }: NotesListProps) {
     });
   };
 
+  // Group notes by category
+  const notesByCategory = notes.reduce((acc, note) => {
+    if (!acc[note.category]) {
+      acc[note.category] = [];
+    }
+    acc[note.category].push(note);
+    return acc;
+  }, {} as Record<string, Note[]>);
+
+  // Get categories that have notes
+  const categoriesWithNotes = Object.keys(notesByCategory);
+
+  if (categoriesWithNotes.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground">
+        Keine Notizen vorhanden
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      {notes?.map((note) => (
-        <div key={note.id} className="p-4 bg-accent/20 rounded-lg space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="font-medium">
-              {noteCategories[note.category as keyof typeof noteCategories]?.label}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {formatDate(note.created_at)} - {note.created_by}
-            </div>
+    <Tabs defaultValue={categoriesWithNotes[0]} className="w-full">
+      <TabsList className="w-full flex flex-wrap">
+        {categoriesWithNotes.map((category) => (
+          <TabsTrigger 
+            key={category} 
+            value={category}
+            className="flex items-center gap-2"
+          >
+            <StickyNote className="h-4 w-4" />
+            {noteCategories[category as keyof typeof noteCategories]?.label}
+            <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
+              {notesByCategory[category].length}
+            </span>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+
+      {categoriesWithNotes.map((category) => (
+        <TabsContent key={category} value={category} className="mt-4">
+          <div className="space-y-4">
+            {notesByCategory[category].map((note) => (
+              <div key={note.id} className="p-4 bg-accent/20 rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    {formatDate(note.created_at)} - {note.created_by}
+                  </div>
+                </div>
+                <div className="text-sm whitespace-pre-wrap">{note.content}</div>
+              </div>
+            ))}
           </div>
-          <div className="text-sm whitespace-pre-wrap">{note.content}</div>
-        </div>
+        </TabsContent>
       ))}
-      {(!notes || notes.length === 0) && (
-        <div className="text-center text-muted-foreground">
-          Keine Notizen vorhanden
-        </div>
-      )}
-    </div>
+    </Tabs>
   );
 }
