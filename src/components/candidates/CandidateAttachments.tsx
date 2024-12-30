@@ -1,9 +1,8 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Download, Eye, Trash2 } from "lucide-react";
+import { FileText } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Candidate } from "@/types/database.types";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
   Dialog,
@@ -12,7 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/components/ui/use-toast";
+import { DocumentList } from "./documents/DocumentList";
+import { DocumentUpload } from "./documents/DocumentUpload";
 
 interface CandidateAttachmentsProps {
   candidate: Candidate;
@@ -34,7 +34,6 @@ interface CandidateAttachment {
 export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
   const [selectedFile, setSelectedFile] = useState<CandidateAttachment | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const queryClient = useQueryClient();
 
   const { data: attachments } = useQuery({
     queryKey: ["candidate-attachments", candidate.id],
@@ -88,135 +87,37 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
     return 'resume';
   };
 
-  const handleDelete = async (attachment: CandidateAttachment) => {
-    try {
-      // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from("attachments")
-        .remove([attachment.file_path]);
-
-      if (storageError) throw storageError;
-
-      // Delete from database
-      const { error: dbError } = await supabase
-        .from("candidate_attachments")
-        .delete()
-        .eq("id", attachment.id);
-
-      if (dbError) throw dbError;
-
-      // Refresh the attachments list
-      queryClient.invalidateQueries({ queryKey: ["candidate-attachments", candidate.id] });
-
-      toast({
-        title: "Dokument gelöscht",
-        description: "Das Dokument wurde erfolgreich gelöscht.",
-      });
-    } catch (error) {
-      console.error("Error deleting document:", error);
-      toast({
-        title: "Fehler",
-        description: "Das Dokument konnte nicht gelöscht werden.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDownload = async (filePath: string, fileName: string) => {
+  const handlePreview = async (attachment: CandidateAttachment) => {
     const { data, error } = await supabase.storage
       .from("attachments")
-      .download(filePath);
-
-    if (error) {
-      console.error("Error downloading file:", error);
-      return;
-    }
-
-    const url = window.URL.createObjectURL(data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
-
-  const handlePreview = async (filePath: string) => {
-    const { data, error } = await supabase.storage
-      .from("attachments")
-      .createSignedUrl(filePath, 3600);
+      .createSignedUrl(attachment.file_path, 3600);
 
     if (error) {
       console.error("Error creating preview URL:", error);
       return;
     }
 
+    setSelectedFile(attachment);
     setPreviewUrl(data.signedUrl);
   };
 
-  const renderDocumentList = (category: DocumentCategory) => {
+  const renderDocumentSection = (category: DocumentCategory) => {
     const categoryAttachments = attachments?.filter(
       (attachment: CandidateAttachment) => attachment.category === category
-    );
-
-    if (!categoryAttachments?.length) {
-      return (
-        <div className="text-center text-muted-foreground py-8">
-          Keine Dokumente in dieser Kategorie
-        </div>
-      );
-    }
+    ) || [];
 
     return (
-      <div className="space-y-4">
-        {categoryAttachments.map((attachment: CandidateAttachment) => (
-          <div
-            key={attachment.id}
-            className="flex items-center justify-between p-4 bg-accent/50 rounded-lg hover:bg-accent transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <FileText className="h-5 w-5" />
-              <div>
-                <div className="font-medium">{attachment.file_name}</div>
-                <div className="text-sm text-muted-foreground">
-                  {new Date(attachment.created_at || '').toLocaleDateString("de-DE")}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedFile(attachment);
-                  handlePreview(attachment.file_path);
-                }}
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDownload(attachment.file_path, attachment.file_name)}
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDelete(attachment)}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <>
+        <DocumentUpload candidateId={candidate.id} category={category} />
+        <DocumentList 
+          documents={categoryAttachments}
+          onPreview={handlePreview}
+        />
+      </>
     );
   };
 
-  if (!attachments?.length) return null;
+  if (!attachments?.length && !candidate.id) return null;
 
   return (
     <Card>
@@ -228,7 +129,7 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="references" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Zwischenzeugnisse
+              Zeugnisse
             </TabsTrigger>
             <TabsTrigger value="resume" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -240,13 +141,13 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="references">
-            {renderDocumentList('reference')}
+            {renderDocumentSection('reference')}
           </TabsContent>
           <TabsContent value="resume">
-            {renderDocumentList('resume')}
+            {renderDocumentSection('resume')}
           </TabsContent>
           <TabsContent value="certificates">
-            {renderDocumentList('certificate')}
+            {renderDocumentSection('certificate')}
           </TabsContent>
         </Tabs>
       </CardContent>
