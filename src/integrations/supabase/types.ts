@@ -55,6 +55,7 @@ export type Database = {
         Row: {
           analysis: string | null
           candidate_id: number | null
+          category: string | null
           created_at: string | null
           file_name: string
           file_path: string
@@ -64,6 +65,7 @@ export type Database = {
         Insert: {
           analysis?: string | null
           candidate_id?: number | null
+          category?: string | null
           created_at?: string | null
           file_name: string
           file_path: string
@@ -73,6 +75,7 @@ export type Database = {
         Update: {
           analysis?: string | null
           candidate_id?: number | null
+          category?: string | null
           created_at?: string | null
           file_name?: string
           file_path?: string
