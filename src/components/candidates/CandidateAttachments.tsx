@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Download, Eye, Award, User, Badge } from "lucide-react";
+import { FileText, Download, Eye, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Candidate } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
 
 interface CandidateAttachmentsProps {
   candidate: Candidate;
@@ -33,6 +34,7 @@ interface CandidateAttachment {
 export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
   const [selectedFile, setSelectedFile] = useState<CandidateAttachment | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: attachments } = useQuery({
     queryKey: ["candidate-attachments", candidate.id],
@@ -44,7 +46,6 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
 
       if (error) throw error;
 
-      // Categorize documents based on their names and content
       return data.map((attachment: CandidateAttachment) => ({
         ...attachment,
         category: categorizeDocument(attachment.file_name, attachment.analysis),
@@ -56,7 +57,6 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
     const lowerFileName = fileName.toLowerCase();
     const lowerAnalysis = analysis?.toLowerCase() || '';
 
-    // Check for references
     if (
       lowerFileName.includes('zeugnis') ||
       lowerFileName.includes('referenz') ||
@@ -66,7 +66,6 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       return 'reference';
     }
 
-    // Check for resumes
     if (
       lowerFileName.includes('lebenslauf') ||
       lowerFileName.includes('cv') ||
@@ -77,7 +76,6 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       return 'resume';
     }
 
-    // Check for certificates
     if (
       lowerFileName.includes('zertifikat') ||
       lowerFileName.includes('certificate') ||
@@ -87,8 +85,41 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       return 'certificate';
     }
 
-    // Default to resume if no clear category is found
     return 'resume';
+  };
+
+  const handleDelete = async (attachment: CandidateAttachment) => {
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("attachments")
+        .remove([attachment.file_path]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("candidate_attachments")
+        .delete()
+        .eq("id", attachment.id);
+
+      if (dbError) throw dbError;
+
+      // Refresh the attachments list
+      queryClient.invalidateQueries({ queryKey: ["candidate-attachments", candidate.id] });
+
+      toast({
+        title: "Dokument gelöscht",
+        description: "Das Dokument wurde erfolgreich gelöscht.",
+      });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      toast({
+        title: "Fehler",
+        description: "Das Dokument konnte nicht gelöscht werden.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDownload = async (filePath: string, fileName: string) => {
@@ -171,6 +202,13 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
               >
                 <Download className="h-4 w-4" />
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDelete(attachment)}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
             </div>
           </div>
         ))}
@@ -193,11 +231,11 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
               Zwischenzeugnisse
             </TabsTrigger>
             <TabsTrigger value="resume" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Lebenslauf
             </TabsTrigger>
             <TabsTrigger value="certificates" className="flex items-center gap-2">
-              <Badge className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Zertifikate
             </TabsTrigger>
           </TabsList>
