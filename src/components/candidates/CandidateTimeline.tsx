@@ -73,7 +73,7 @@ export function CandidateTimeline({ candidate }: CandidateTimelineProps) {
                 setDialogOpen(true);
               }}
             />
-          )}
+          ))}
 
           {/* Education */}
           {candidate.education && (
