@@ -89,6 +89,50 @@ export type Database = {
           },
         ]
       }
+      candidate_education: {
+        Row: {
+          candidate_id: number | null
+          created_at: string | null
+          degree: string
+          end_date: string | null
+          field_of_study: string | null
+          id: number
+          institution: string
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          candidate_id?: number | null
+          created_at?: string | null
+          degree: string
+          end_date?: string | null
+          field_of_study?: string | null
+          id?: number
+          institution: string
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          candidate_id?: number | null
+          created_at?: string | null
+          degree?: string
+          end_date?: string | null
+          field_of_study?: string | null
+          id?: number
+          institution?: string
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_education_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidate_work_history: {
         Row: {
           candidate_id: number | null

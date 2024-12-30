@@ -10,25 +10,39 @@ interface EducationProps {
 }
 
 export function Education({ candidate, onEntryClick }: EducationProps) {
-  const { data: educationHistory } = useQuery({
+  const { data: educationHistory, isError } = useQuery({
     queryKey: ["education-history", candidate.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("candidate_education")
-        .select("*")
-        .eq("candidate_id", candidate.id)
-        .order("end_date", { ascending: false })
-        .limit(3);
+      try {
+        const { data, error } = await supabase
+          .from("candidate_education")
+          .select("*")
+          .eq("candidate_id", candidate.id)
+          .order("end_date", { ascending: false })
+          .limit(3);
 
-      if (error) throw error;
-      return data;
+        if (error) {
+          console.error("Error fetching education history:", error);
+          return [];
+        }
+
+        return data || [];
+      } catch (error) {
+        console.error("Error in education history query:", error);
+        return [];
+      }
     },
+    retry: false
   });
 
-  if (!educationHistory?.length && !candidate.education) return null;
+  // If there's no education history and no legacy education data, don't render anything
+  if ((!educationHistory || educationHistory.length === 0) && !candidate.education) {
+    return null;
+  }
 
   return (
     <div className="space-y-4">
+      {/* Show education history from the dedicated table if available */}
       {educationHistory?.map((entry) => (
         <TimelineEntry
           key={entry.id}
@@ -45,7 +59,8 @@ export function Education({ candidate, onEntryClick }: EducationProps) {
         />
       ))}
       
-      {!educationHistory?.length && candidate.education && (
+      {/* Show legacy education data if no history exists */}
+      {(!educationHistory || educationHistory.length === 0) && candidate.education && (
         <TimelineEntry
           entry={{
             id: -1,
