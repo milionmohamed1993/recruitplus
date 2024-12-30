@@ -40,15 +40,17 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: attachments } = useQuery({
+  const { data: attachments, refetch } = useQuery({
     queryKey: ["candidate-attachments", candidate.id],
     queryFn: async () => {
+      console.log("Fetching attachments for candidate:", candidate.id);
       const { data, error } = await supabase
         .from("candidate_attachments")
         .select("*")
         .eq("candidate_id", candidate.id);
 
       if (error) throw error;
+      console.log("Fetched attachments:", data);
       return data;
     },
   });
@@ -68,11 +70,14 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
   };
 
   const handleFileUpload = (newFile: CandidateAttachment) => {
+    console.log("Adding new file to uploaded files:", newFile);
     setUploadedFiles(prev => [...prev, newFile]);
   };
 
   const handleSaveChanges = async () => {
     try {
+      console.log("Saving changes for uploaded files:", uploadedFiles);
+      
       // Save all uploaded files
       for (const file of uploadedFiles) {
         const { error } = await supabase
@@ -89,7 +94,7 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       setUploadedFiles([]);
       
       // Refresh the documents list
-      queryClient.invalidateQueries({ queryKey: ["candidate-attachments", candidate.id] });
+      await refetch();
 
       toast({
         title: "Änderungen gespeichert",
@@ -137,7 +142,10 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Dokumente</CardTitle>
         {hasUnsavedChanges && (
-          <Button onClick={handleSaveChanges} className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button 
+            onClick={handleSaveChanges} 
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2 rounded-md shadow-sm"
+          >
             Änderungen speichern
           </Button>
         )}
