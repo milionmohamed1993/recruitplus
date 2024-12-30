@@ -45,47 +45,9 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
 
       if (error) throw error;
 
-      return data.map((attachment: CandidateAttachment) => ({
-        ...attachment,
-        category: categorizeDocument(attachment.file_name, attachment.analysis),
-      }));
+      return data;
     },
   });
-
-  const categorizeDocument = (fileName: string, analysis?: string): DocumentCategory => {
-    const lowerFileName = fileName.toLowerCase();
-    const lowerAnalysis = analysis?.toLowerCase() || '';
-
-    if (
-      lowerFileName.includes('zeugnis') ||
-      lowerFileName.includes('referenz') ||
-      lowerAnalysis.includes('arbeitszeugnis') ||
-      lowerAnalysis.includes('zwischenzeugnis')
-    ) {
-      return 'reference';
-    }
-
-    if (
-      lowerFileName.includes('lebenslauf') ||
-      lowerFileName.includes('cv') ||
-      lowerFileName.includes('resume') ||
-      lowerAnalysis.includes('lebenslauf') ||
-      lowerAnalysis.includes('berufserfahrung')
-    ) {
-      return 'resume';
-    }
-
-    if (
-      lowerFileName.includes('zertifikat') ||
-      lowerFileName.includes('certificate') ||
-      lowerFileName.includes('bescheinigung') ||
-      lowerAnalysis.includes('zertifizierung')
-    ) {
-      return 'certificate';
-    }
-
-    return 'resume';
-  };
 
   const handlePreview = async (attachment: CandidateAttachment) => {
     const { data, error } = await supabase.storage
@@ -125,28 +87,28 @@ export function CandidateAttachments({ candidate }: CandidateAttachmentsProps) {
         <CardTitle>Dokumente</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="references" className="w-full">
+        <Tabs defaultValue="resume" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="references" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Zeugnisse
-            </TabsTrigger>
             <TabsTrigger value="resume" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Lebenslauf
             </TabsTrigger>
-            <TabsTrigger value="certificates" className="flex items-center gap-2">
+            <TabsTrigger value="reference" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Zeugnisse
+            </TabsTrigger>
+            <TabsTrigger value="certificate" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Zertifikate
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="references">
-            {renderDocumentSection('reference')}
-          </TabsContent>
           <TabsContent value="resume">
             {renderDocumentSection('resume')}
           </TabsContent>
-          <TabsContent value="certificates">
+          <TabsContent value="reference">
+            {renderDocumentSection('reference')}
+          </TabsContent>
+          <TabsContent value="certificate">
             {renderDocumentSection('certificate')}
           </TabsContent>
         </Tabs>

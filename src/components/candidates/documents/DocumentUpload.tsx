@@ -31,6 +31,7 @@ export function DocumentUpload({ candidateId, category }: DocumentUploadProps) {
           file_name: file.name,
           file_path: fileName,
           file_type: file.type,
+          category: category // Add the category when inserting
         });
 
       if (dbError) throw dbError;
