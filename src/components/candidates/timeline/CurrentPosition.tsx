@@ -18,9 +18,13 @@ export function CurrentPosition({ candidate, onEntryClick }: CurrentPositionProp
         .select("*")
         .eq("candidate_id", candidate.id)
         .eq("is_current", true)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching current position:", error);
+        return null;
+      }
+      
       return data;
     },
   });
