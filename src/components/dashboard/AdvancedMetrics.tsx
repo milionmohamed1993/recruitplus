@@ -2,7 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, UserPlus, Building2, GraduationCap, Globe, Briefcase } from "lucide-react";
 import { useCandidates } from "@/hooks/useCandidates";
 import type { Candidate } from "@/types/database.types";
-import { educationLevels } from "../candidates/EducationLevelSelect";
+
+const RELEVANT_EDUCATION_LEVELS = [
+  "Fachausweis",
+  "HFP",
+  "HF",
+  "Bachelor",
+  "Master",
+  "PhD"
+];
 
 export function AdvancedMetrics() {
   const { data: candidates } = useCandidates();
@@ -16,21 +24,19 @@ export function AdvancedMetrics() {
 
   const educationMetrics = candidates?.reduce((acc: Record<string, number>, candidate: Candidate) => {
     const education = candidate.education || "Nicht angegeben";
-    acc[education] = (acc[education] || 0) + 1;
+    // Only count if it's one of our relevant education levels
+    if (RELEVANT_EDUCATION_LEVELS.some(level => education.includes(level))) {
+      acc[education] = (acc[education] || 0) + 1;
+    }
     return acc;
   }, {});
-
-  // Get education label from value
-  const getEducationLabel = (value: string) => {
-    return educationLevels.find(level => level.value === value)?.label || value;
-  };
 
   // Sort education metrics by count and get top 5
   const topEducation = Object.entries(educationMetrics || {})
     .sort(([, a], [, b]) => (b as number) - (a as number))
     .slice(0, 5)
     .map(([education, count]) => ({
-      label: getEducationLabel(education),
+      label: education,
       value: count,
       icon: <GraduationCap className="h-4 w-4 text-orange-600" />
     }));
