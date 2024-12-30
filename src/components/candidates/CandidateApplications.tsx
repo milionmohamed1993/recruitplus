@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface CandidateApplicationsProps {
   candidateId: number;
@@ -62,19 +63,38 @@ export function CandidateApplications({ candidateId }: CandidateApplicationsProp
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'submitted':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-500 hover:bg-blue-600 text-white';
       case 'screening':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-500 hover:bg-yellow-600 text-white';
       case 'interview':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-500 hover:bg-purple-600 text-white';
       case 'offer':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500 hover:bg-green-600 text-white';
       case 'hired':
-        return 'bg-emerald-100 text-emerald-800';
+        return 'bg-emerald-500 hover:bg-emerald-600 text-white';
       case 'rejected':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-500 hover:bg-red-600 text-white';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500 hover:bg-gray-600 text-white';
+    }
+  };
+
+  const getStatusProgress = (status: string) => {
+    switch (status) {
+      case 'submitted':
+        return 20;
+      case 'screening':
+        return 40;
+      case 'interview':
+        return 60;
+      case 'offer':
+        return 80;
+      case 'hired':
+        return 100;
+      case 'rejected':
+        return 100;
+      default:
+        return 0;
     }
   };
 
@@ -143,16 +163,22 @@ export function CandidateApplications({ candidateId }: CandidateApplicationsProp
         <CardContent>
           <div className="space-y-4">
             {applications?.map((application) => (
-              <div key={application.id} className="flex items-center justify-between p-4 bg-accent/20 rounded-lg">
-                <div>
-                  <div className="font-medium">{application.jobs?.title}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Beworben am: {new Date(application.date_applied).toLocaleDateString()}
+              <div key={application.id} className="p-4 bg-accent/20 rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">{application.jobs?.title}</div>
+                    <div className="text-sm text-muted-foreground">
+                      Beworben am: {new Date(application.date_applied).toLocaleDateString()}
+                    </div>
                   </div>
+                  <Badge className={getStatusColor(application.status)}>
+                    {getStatusLabel(application.status)}
+                  </Badge>
                 </div>
-                <Badge className={getStatusColor(application.status)}>
-                  {getStatusLabel(application.status)}
-                </Badge>
+                <div className="space-y-1">
+                  <div className="text-sm text-muted-foreground">Fortschritt</div>
+                  <Progress value={getStatusProgress(application.status)} className="h-2" />
+                </div>
               </div>
             ))}
             {applications?.length === 0 && (
